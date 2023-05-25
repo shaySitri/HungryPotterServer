@@ -33,10 +33,30 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
-        
     }
 }
 
+
+async function getRecipeInstructions(recipe_id) {
+    let recipe_info = await getRecipeInformation(recipe_id);
+    let { extendedIngredients ,analyzedInstructions, servings } = recipe_info.data;
+    allIng = []
+    for (ing in extendedIngredients)
+    {
+        allIng.push(
+            {
+                name: ing.name,
+                quantity: ing.amount,
+                unit: ing.unit
+            }
+        )
+    }
+    return {
+        ingredients: allIng,
+        instructions: analyzedInstructions,
+        servings: servings,
+    }    
+}
 
 
 exports.getRecipeDetails = getRecipeDetails;
