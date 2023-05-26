@@ -36,30 +36,42 @@ async function getRecipeDetails(recipe_id) {
     }
 }
 
-
 async function getRecipeInstructions(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { extendedIngredients ,analyzedInstructions, servings } = recipe_info.data;
-    allIng = []
-    for (ing in extendedIngredients)
-    {
+    let { extendedIngredients, analyzedInstructions, servings } = recipe_info.data;
+    
+    let allIng = []
+    let inst = []
+
+    for (let i = 0; i < extendedIngredients.length; i++) {
         allIng.push(
             {
-                name: ing.name,
-                quantity: ing.amount,
-                unit: ing.unit
+                name: extendedIngredients[i].name,
+                quantity: extendedIngredients[i].amount,
+                unit: extendedIngredients[i].unit
             }
         )
+      }
+
+      
+    for (let i = 0; i < analyzedInstructions[0].steps.length; i++) {
+        obj =  analyzedInstructions[0].steps[i]
+        inst.push(obj.step)
     }
+    
+
     return {
         ingredients: allIng,
-        instructions: analyzedInstructions,
         servings: servings,
-    }    
+        instructions: inst
+    }
 }
 
 
+
+
 exports.getRecipeDetails = getRecipeDetails;
+exports.getRecipeInstructions = getRecipeInstructions;
 
 
 

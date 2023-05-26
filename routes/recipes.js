@@ -8,13 +8,14 @@ router.get("/", (req, res) => res.send("im here"));
 /**
  * This path returns a full details of a recipe by its id
  */
-router.get("/recipes/:id", async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
     let recipeDetails = await recipes_utils.getRecipeDetails(req.params.id);
-    let instructionsRecipe = await recipes_utils.getRecipeInstructions(req.params.id);
-    let instructions = instructionsRecipe.instructions
-    let ingredients = instructionsRecipe.ingredients
-    let servings = instructionsRecipe.servings
+    let recipeIns = await recipes_utils.getRecipeInstructions(req.params.id);
+    //let instructions = await recipes_utils.getRecipeInstructions(req.params.id);
+    let instructions = recipeIns.instructions
+    let ingredients = recipeIns.ingredients
+    let servings = recipeIns.servings
     const fullRecipe = 
     { 
       ingredients,
@@ -22,7 +23,7 @@ router.get("/recipes/:id", async (req, res, next) => {
       servings,
       recipeDetails
     }
-      
+    
     res.send(fullRecipe);
   } catch (error) {
     next(error);

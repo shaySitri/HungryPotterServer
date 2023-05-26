@@ -10,7 +10,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-- url: https://virtserver.swaggerhub.com/CARMELIT/APIrec/1.0.0
+- url: "http://127.0.0.1:3000"
   description: SwaggerHub API for recipes site
 tags:
 - name: admins
@@ -284,8 +284,8 @@ components:
           items:
             $ref: '#/components/schemas/Ingredient'
         instructions:
-          type: string
-          example: "Preheat the oven to 210 C. Mix the flour, sugar, and salt in a large bowl. ..."
+          type: array
+          example: ["Preheat the oven to 210 C.", "Mix the flour, sugar, and salt in a large bowl."]
         servings:
           type: integer
           example: 12
