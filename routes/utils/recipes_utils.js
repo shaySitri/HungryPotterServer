@@ -38,8 +38,8 @@ async function getRecipeDetails(recipe_id) {
 
 async function getRecipeInstructions(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
+
     let { extendedIngredients, analyzedInstructions, servings } = recipe_info.data;
-    
     let allIng = []
     let inst = []
 
@@ -53,10 +53,17 @@ async function getRecipeInstructions(recipe_id) {
         )
       }
 
-      
-    for (let i = 0; i < analyzedInstructions[0].steps.length; i++) {
-        obj =  analyzedInstructions[0].steps[i]
-        inst.push(obj.step)
+    //  what to do if there is no instructions????
+    if (analyzedInstructions = [])
+    {
+        inst = ['No Instructions Found.']
+    }
+    else 
+    {
+        for (let i = 0; i < analyzedInstructions[0].steps.length; i++) {
+            obj =  analyzedInstructions[0].steps[i]
+            inst.push(obj.step)
+        }
     }
     
 

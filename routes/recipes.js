@@ -12,7 +12,6 @@ router.get("/:id", async (req, res, next) => {
   try {
     let recipeDetails = await recipes_utils.getRecipeDetails(req.params.id);
     let recipeIns = await recipes_utils.getRecipeInstructions(req.params.id);
-    //let instructions = await recipes_utils.getRecipeInstructions(req.params.id);
     let instructions = recipeIns.instructions
     let ingredients = recipeIns.ingredients
     let servings = recipeIns.servings
@@ -23,10 +22,19 @@ router.get("/:id", async (req, res, next) => {
       servings,
       recipeDetails
     }
-    
     res.send(fullRecipe);
   } catch (error) {
-    next(error);
+    next(error); // 404
+  }
+});
+
+router.get("/preview/:id", async (req, res, next) => {
+  try {
+    const recipeDetails = await recipes_utils.getRecipeDetails(req.params.id);    
+    res.send(recipeDetails);
+  } catch (error) {
+    next(error); // 404
+    
   }
 });
 
