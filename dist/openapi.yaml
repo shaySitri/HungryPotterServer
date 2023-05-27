@@ -87,7 +87,7 @@ paths:
                   $ref: '#/components/schemas/RecipeDetails'
         "404":
           description: recipes not found
-  /login:
+  /Login:
     post:
       tags:
       - login
@@ -107,13 +107,13 @@ paths:
           description: wrong password.
         "404":
           description: user doesn't exist
-  /home/randRec:
+  /randomRecieps:
     get:
       tags:
       - home
       summary: display recipes
       description: display 3 random recipes.
-      operationId: displayRandRecipe
+      operationId: randomRecieps
       responses:
         "200":
           description: rand 3 recipes succeeded.

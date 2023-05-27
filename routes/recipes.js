@@ -28,6 +28,9 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+/**
+ * This path returns a preview details of recikpes according to its id
+ */
 router.get("/preview/:id", async (req, res, next) => {
   try {
     const recipeDetails = await recipes_utils.getRecipeDetails(req.params.id);    
@@ -37,5 +40,9 @@ router.get("/preview/:id", async (req, res, next) => {
     
   }
 });
+
+
+
+
 
 module.exports = router;
