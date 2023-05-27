@@ -155,7 +155,7 @@ paths:
                   $ref: '#/components/schemas/Recipe'
         "204":
           description: No recipes found.
-  /register:
+  /Register:
     post:
       tags:
       - register
@@ -184,12 +184,12 @@ components:
   schemas:
     User:
       required:
-      - country
-      - email
-      - firstName
-      - lastName
-      - password
       - username
+      - firstname
+      - lastname
+      - country
+      - password
+      - email
       properties:
         username:
           maxLength: 8
