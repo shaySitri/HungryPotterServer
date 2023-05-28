@@ -6,7 +6,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
 
 /**
  * Get recipes list contain 3 random recieps from spooncular response and extract the relevant recipe data for preview
- * @param {*} random_recieps 
+ * @param {*} random_recipes 
  */
 
 
@@ -21,8 +21,8 @@ async function getRandomRecipeInformation() {
 }
 
 async function getRandomRecieps() {
-    let random_recieps = await getRandomRecipeInformation();
-    let { recipes } = random_recieps.data;
+    let random_recipes = await getRandomRecipeInformation();
+    let { recipes } = random_recipes.data;
     let randRecipes = []
 
     for (let i = 0; i < recipes.length; i++) {

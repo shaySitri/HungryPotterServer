@@ -8,7 +8,7 @@ const home_utils = require("./utils/home_utils");
 /**
  * This path generates 3 random recipes
  */
-router.get("/randomRecieps", async (req, res, next) => {
+router.get("/randomRecipes", async (req, res, next) => {
     try {
       const random = await home_utils.getRandomRecieps();
       res.send(random);

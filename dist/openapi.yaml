@@ -107,7 +107,7 @@ paths:
           description: wrong password.
         "404":
           description: user doesn't exist
-  /randomRecieps:
+  /randomRecipes:
     get:
       tags:
       - home
@@ -144,6 +144,48 @@ paths:
         explode: true
         schema:
           type: string
+      - name: cuisine
+        in: query
+        description: filter by cousine
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: diet
+        in: query
+        description: filter by diet
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: intolerance
+        in: query
+        description: filter by intolerance
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: number
+        deafult: 5
+        in: query
+        description: number of wanted result
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: int
+      - name: sort
+        deafult: '(empty)'
+        in: query
+        description: sorting method
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
       responses:
         "200":
           description: recipes found.
@@ -155,6 +197,8 @@ paths:
                   $ref: '#/components/schemas/Recipe'
         "204":
           description: No recipes found.
+        "404":
+          description: Missing parameters.
   /Register:
     post:
       tags:

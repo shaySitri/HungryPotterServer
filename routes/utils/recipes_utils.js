@@ -74,10 +74,60 @@ async function getRecipeInstructions(recipe_id) {
     }
 }
 
+async function getSearchResultApi(query) {
+    let paramsQ = {}
+    if (query.query != "")
+    {
+        paramsQ[query] = query.query;
+    }
+    else
+    {
+        throw { status: 404, message: "Search cannot be empty." };
+    }
+    if (query.cuisine != "")
+    {
+        paramsQ[cuisine] = query.cuisine;
+    }
+    if (query.diet != "")
+    {
+        paramsQ[diet] = query.diet;
+    }
+    if (query.intolerance != "")
+    {
+        paramsQ[intolerance] = query.intolerance;
+    }
+    if (query.sort != "")
+    {
+        paramsQ[sort] = query.sort;
+    }
+    if (query.number != 5)
+    {
+        paramsQ[number] = query.number;
+    }
+    else
+    {
+        paramsQ[number] = 5;
+    }
+
+    paramsQ[apiKey] =  process.env.spooncular_apiKey;
+    return await axios.get(`${api_domain}/complexSearch`, 
+    { params : { paramsQ  } }
+    );
+}
+async function getSearchResult(query) {
+    let recipesResult = await getSearchResultApi(query);
+    let { allRes } = recipesResult.data;
+    
+    return {
+        recipesResult
+    }
+}
+
 
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipeInstructions = getRecipeInstructions;
+exports.getSearchResult = getSearchResult;
 
 
 
