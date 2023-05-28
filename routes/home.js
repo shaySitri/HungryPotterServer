@@ -18,6 +18,28 @@ router.get("/randomRecipes", async (req, res, next) => {
   });
   
 
+  /**
+ * This path returns search result according user query.
+ */
+router.get("/search", async (req, res, next) => {
+  try {
+    let query =
+    {
+      query: req.query.query,
+      cuisine: req.query.cuisine,
+      diet: req.query.diet,
+      intolerance: req.query.intolerance,
+      number: req.query.number,
+      sort: req.query.sort
+    }
+    const searchResult = await home_utils.getSearchResult(query);    
+    res.send(searchResult);
+  } catch (error) {
+    next(error); // 404
+    
+  }
+});
+
 module.exports = router;
 
 

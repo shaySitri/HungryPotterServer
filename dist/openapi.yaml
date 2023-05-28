@@ -128,7 +128,7 @@ paths:
                   $ref: '#/components/schemas/RecipeDetails'
         "204":
           description: No recipes found.
-  /recipes/search:
+  /search:
     get:
       tags:
       - search
