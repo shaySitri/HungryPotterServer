@@ -342,6 +342,17 @@ components:
         servings:
           type: integer
           example: 12
+    RecipeSearch:
+      required:
+      - recipeDetails
+      - instructions
+      type: object
+      properties:
+          recipeDetails:
+            $ref: '#/components/schemas/RecipeDetails'
+          instructions:
+            type: array
+            example: ["Preheat the oven to 210 C.", "Mix the flour, sugar, and salt in a large bowl."]
     login_body:
       required:
       - password
