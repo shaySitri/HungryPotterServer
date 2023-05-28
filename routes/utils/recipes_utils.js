@@ -36,10 +36,22 @@ async function getRecipeDetails(recipe_id) {
     }
 }
 
+async function getRecipeInstructionsApi(recipe_id) {
+    return await axios.get(`${api_domain}/${recipe_id}/analyzedInstructions`, {
+        params: {
+            stepBreakdown: true,
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+}
+
 async function getRecipeInstructions(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
 
-    let { extendedIngredients, analyzedInstructions, servings } = recipe_info.data;
+    let { extendedIngredients, servings } = recipe_info.data;
+
+    let analyzedInstructions = await getRecipeInstructionsApi(recipe_id);
+    //let { instructions } = analyzedInstructions.data
     let allIng = []
     let inst = []
 
@@ -54,31 +66,26 @@ async function getRecipeInstructions(recipe_id) {
       }
 
     //  what to do if there is no instructions????
-    if (analyzedInstructions = [])
-    {
-        inst = ['No Instructions Found.']
-    }
-    else 
-    {
-        for (let i = 0; i < analyzedInstructions[0].steps.length; i++) {
-            obj =  analyzedInstructions[0].steps[i]
-            inst.push(obj.step)
-        }
-    }
+    
+    //console.log(instructions.data)
+    console.log("print: ", analyzedInstructions.data);
+    // for (let i = 0; i < instructions.length; i++) {
+    //     obj =  instructions[i];
+    //     console.log(obj)
+    //     // for (let j = 0; j < obj.steps.length; i++) {
+    //     //     inst.push(obj[i].step)
+    //     //  }
+    //     }   
+    
     
 
     return {
         ingredients: allIng,
         servings: servings,
-        instructions: inst
+        instructions: analyzedInstructions
     }
 }
 
 
-
-
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipeInstructions = getRecipeInstructions;
-
-
-

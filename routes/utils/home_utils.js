@@ -58,7 +58,6 @@ const sortList = ["popularity", "time"]
 
 async function getSearchResultApi(query) {
 
-    //let paramsQ = [];
     let paramsQ = new Object();
 
 
@@ -75,7 +74,6 @@ async function getSearchResultApi(query) {
     {
         query.cuisine = query.cuisine.toLowerCase();
         query.cuisine = query.cuisine.charAt(0).toUpperCase() + query.cuisine.slice(1);
-        console.log(query.cuisine)
         if (cuisineList.includes(query.cuisine))
         {
             paramsQ.cuisine = query.cuisine;
@@ -142,7 +140,6 @@ async function getSearchResultApi(query) {
     }
 
     paramsQ.limitLicesne = true;
-    //paramsQ.apiKey = process.env.spooncular_apiKey;
     return await axios.get(`${api_domain}/complexSearch`,{
         params:
         {
@@ -159,8 +156,6 @@ async function getSearchResultApi(query) {
 async function getSearchResult(query) {
     let recipesResult = await getSearchResultApi(query);
     let { results } = recipesResult.data;
-    console.log(recipesResult)
-    //console.log(paramsQ)
     return {
         results
     }
