@@ -65,24 +65,22 @@ async function getRecipeInstructions(recipe_id) {
         )
       }
 
+      
     //  what to do if there is no instructions????
     
-    //console.log(instructions.data)
-    console.log("print: ", analyzedInstructions.data);
-    // for (let i = 0; i < instructions.length; i++) {
-    //     obj =  instructions[i];
-    //     console.log(obj)
-    //     // for (let j = 0; j < obj.steps.length; i++) {
-    //     //     inst.push(obj[i].step)
-    //     //  }
-    //     }   
-    
+    for (let i = 0; i < analyzedInstructions.data.length; i++) {
+        obj =  analyzedInstructions.data[i];
+        for (let j = 0; i < obj.steps.length; i++)
+        {
+            inst.push(obj.steps[i].step)
+        }
+    }   
     
 
     return {
         ingredients: allIng,
         servings: servings,
-        instructions: analyzedInstructions
+        instructions: inst
     }
 }
 

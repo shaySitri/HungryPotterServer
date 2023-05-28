@@ -12,11 +12,11 @@ info:
 servers:
 - url: "http://127.0.0.1:3000"
   description: SwaggerHub API for recipes site
-tags:
-- name: admins
-  description: Secured Admin-only calls
-- name: developers
-  description: Operations available to regular developers
+# tags:
+# - name: admins
+#   description: Secured Admin-only calls
+# - name: developers
+#   description: Operations available to regular developers
 paths:
   /recipes/{id}:
     get:
@@ -45,7 +45,7 @@ paths:
   /recipes/:
     post:
       tags:
-      - create
+      - recipes
       summary: add new recipe
       description: Adds new recipe to the system
       operationId: addRecipe
@@ -63,7 +63,7 @@ paths:
   /recipes/preview/{id}:
     get:
       tags:
-      - recipe
+      - recipes
       summary: get recipe preview
       description: user get preview of recipe.
       operationId: recipe preview
@@ -87,10 +87,10 @@ paths:
                   $ref: '#/components/schemas/RecipeDetails'
         "404":
           description: recipes not found
-  /Login:
+  /login:
     post:
       tags:
-      - login
+      - user
       summary: user login
       description: login to website.
       operationId: login
@@ -131,7 +131,7 @@ paths:
   /search:
     get:
       tags:
-      - search
+      - home
       summary: search recipe
       description: "search recipe with keywords (name, ingrediets...)."
       operationId: searchRecipe
@@ -199,10 +199,10 @@ paths:
           description: No recipes found.
         "404":
           description: Missing parameters.
-  /Register:
+  /register:
     post:
       tags:
-      - register
+      - user
       summary: user register
       description: Register to website.
       operationId: register
