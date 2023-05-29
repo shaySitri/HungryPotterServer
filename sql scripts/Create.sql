@@ -9,8 +9,18 @@ CREATE TABLE users (
     email VARCHAR(255)
 );
 
--- CREATE TABLE userRecipes (
---     username VARCHAR(255),
-    
--- );
+CREATE TABLE userRecipes (
+    username VARCHAR(255),
+    recipeId INT(255),
+    title VARCHAR(255),
+    readyInMinutes INT(255),
+    image VARCHAR(255),
+    popularity INT(255),
+    vegan BOOLEAN,
+    vegetarian BOOLEAN,
+    glutenFree BOOLEAN,
+    ingredients VARCHAR(255),
+    instructions VARCHAR(255),
+    servings INT(255)
+);
 
