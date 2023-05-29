@@ -42,10 +42,10 @@ paths:
                 $ref: '#/components/schemas/Recipe'
         "404":
           description: Recipe not found
-  /recipes/:
+  /users/addRecipe/:
     post:
       tags:
-      - recipes
+      - user
       summary: add new recipe
       description: Adds new recipe to the system
       operationId: addRecipe
@@ -90,7 +90,7 @@ paths:
   /login:
     post:
       tags:
-      - user
+      - authentication
       summary: user login
       description: login to website.
       operationId: login
@@ -202,7 +202,7 @@ paths:
   /register:
     post:
       tags:
-      - user
+      - authentication
       summary: user register
       description: Register to website.
       operationId: register
