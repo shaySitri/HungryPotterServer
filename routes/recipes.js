@@ -22,6 +22,20 @@ router.get("/:id", async (req, res, next) => {
       servings,
       recipeDetails
     }
+
+    // maintain cookies
+
+    // if (req.session.username != null)
+    // {
+    //   if (req.session.lastRecipes > 3)
+    //   {
+    //     // remove the first recipe
+    //     (req.session.lastRecipes).splice(0, 1);
+    //     // add the current recipe
+    //     (req.session.lastRecipes).push(req.params.id);
+    //   }
+    // }
+
     res.send(fullRecipe);
   } catch (error) {
     next(error); // 404

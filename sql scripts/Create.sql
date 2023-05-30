@@ -1,6 +1,7 @@
 CREATE DATABASE hungry_potter;
 USE hungry_potter;
 CREATE TABLE users (
+    userid INT(255),
     username VARCHAR(255),
     firstname VARCHAR(255),
     lastname VARCHAR(255),
@@ -10,7 +11,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE userRecipes (
-    username VARCHAR(255),
+    userid INT(255),
     recipeId INT(255),
     title VARCHAR(255),
     readyInMinutes INT(255),
@@ -24,3 +25,7 @@ CREATE TABLE userRecipes (
     servings INT(255)
 );
 
+CREATE TABLE favoriteRecipes (
+    userid INT(255),
+    recipeId INT(255)
+);
