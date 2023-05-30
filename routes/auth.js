@@ -31,9 +31,15 @@ router.post("/register", async (req, res, next) => {
       user_details.password,
       parseInt(process.env.bcrypt_saltRounds)
     );
+    
+    let userid = 
     await DButils.execQuery(
-      `INSERT INTO users (username,firstname,lastname,country,password,email) 
-      VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
+      `SELECT COUNT('*') as count FROM users;`);
+    userid = userid[0].count + 1;
+
+    await DButils.execQuery(
+      `INSERT INTO users (userid,username,firstname,lastname,country,password,email) 
+      VALUES ('${userid}','${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
       '${user_details.country}', '${hash_password}', '${user_details.email}');`
     );
     res.status(201).send({ message: "user created", success: true });
@@ -61,7 +67,9 @@ router.post("/login", async (req, res, next) => {
     }
 
     // Set cookie
-    req.session.username = user.username;
+    req.session.userid = user.userid;
+    req.session.lastRecipes = [];
+    req.session.lastSearches = [];
 
 
     // return cookie

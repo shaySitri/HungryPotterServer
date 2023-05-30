@@ -224,6 +224,35 @@ paths:
                 type: string
         "400":
           description: Invalid request body
+  /users/favorites:
+    post:
+        tags:
+        - user
+        summary: user favorite recipes
+        description: Save recipe in user favorite.
+        operationId: favorite
+        requestBody:
+          description: recipeid
+          content:
+            application/json:
+              schema:
+                required:
+                - recipeid
+                properties:
+                  recipeid:
+                    type: int
+        responses:
+          "303":
+            description: "User created successfully, redirecting to login page"
+            headers:
+              location:
+                description: redirect to login page
+                style: simple
+                explode: false
+                schema:
+                  type: string
+          "400":
+            description: Invalid request body
 components:
   schemas:
     User:

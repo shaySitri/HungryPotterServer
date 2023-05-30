@@ -1,12 +1,13 @@
 const DButils = require("./DButils");
 
-async function markAsFavorite(user_id, recipe_id){
-    await DButils.execQuery(`insert into FavoriteRecipes values ('${user_id}',${recipe_id})`);
+async function markAsFavorite(userid, recipeid){
+    console.log(userid, recipeid);
+    await DButils.execQuery(`insert into favoriterecipes values ('${userid}',${recipeid})`);
 }
 
-async function getFavoriteRecipes(user_id){
-    const recipes_id = await DButils.execQuery(`select recipe_id from FavoriteRecipes where user_id='${user_id}'`);
-    return recipes_id;
+async function getFavoriteRecipes(userid){
+    const recipesid = await DButils.execQuery(`select recipeid from favoriterecipes where userid='${userid}'`);
+    return recipesid;
 }
 
 
@@ -30,6 +31,10 @@ async function addNewRecipe(recipeDeatils){
     // Input check from the client, parse to int...
 
     // Ready in minutes (should be an int)
+    let reciepid = await DButils.execQuery(
+        `SELECT COUNT('*') as count FROM userrecipes;`);
+    reciepid = reciepid[0].count + 1;
+
     if (containsOnlyNumbers(recipeDeatils.readyInMinutes, 10) == true)
     {
         readyInMinutes = parseInt(recipeDeatils.readyInMinutes, 10)
@@ -70,8 +75,8 @@ async function addNewRecipe(recipeDeatils){
     // how to check the ingrediants???
 
     const recipes_id = await DButils.execQuery(
-        `INSERT INTO userRecipes (username,recipeId,title,readyInMinutes,image,popularity,vegan,vegetarian,glutenFree,ingredients,instructions,servings) 
-        VALUES ('${recipeDeatils.username}', '${recipeDeatils.recipeId}', '${recipeDeatils.title}',
+        `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,popularity,vegan,vegetarian,glutenFree,ingredients,instructions,servings) 
+        VALUES ('${recipeDeatils.userid}', '${reciepid}', '${recipeDeatils.title}',
         '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.popularity}',
         '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}',
         '${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${servings}');`

@@ -3,17 +3,16 @@ var router = express.Router();
 const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
-let userRecipeCounter = 0;
 
 
 /**
  * Authenticate all incoming requests by middleware
  */
 router.use(async function (req, res, next) {
-  if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT username FROM users").then((users) => {
-      if (users.find((x) => x.username === req.session.username)) {
-        req.username = req.session.username;
+  if (req.session && req.session.userid) {
+    DButils.execQuery("SELECT userid FROM users").then((users) => {
+      if (users.find((x) => x.userid === req.session.userid)) {
+        req.userid = req.session.userid;
         next();
       }
     }).catch(err => next(err));
@@ -24,20 +23,16 @@ router.use(async function (req, res, next) {
 
 
 /**
- * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
+ * This path gets body with recipe details and add it to data base userrecipes
  */
 router.post('/addRecipe', async (req,res,next) => {
 
   
- 
   try{
-
-    
+  
     let recipeDeatils =
     {
-      //username: req.session.user_id,
-      username: "try1",
-      recipeId: userRecipeCounter + 1,
+      userid: req.userid,
       title: req.body.title,
       readyInMinutes: req.body.readyInMinutes,
       image:  req.body.image,
@@ -50,14 +45,10 @@ router.post('/addRecipe', async (req,res,next) => {
       servings: req.body.servings
     }
 
-    console.log("xxx")
-    console.log("xxx" ,req.body.title)
-
 
     await user_utils.addNewRecipe(recipeDeatils);
     res.status(200).send("The Recipe Addedd Successfully");
 
-    userRecipeCounter++;
 
     } catch(error){
     next(error);
@@ -70,9 +61,10 @@ router.post('/addRecipe', async (req,res,next) => {
  */
 router.post('/favorites', async (req,res,next) => {
   try{
-    const user_id = req.session.user_id;
-    const recipe_id = req.body.recipeId;
-    await user_utils.markAsFavorite(user_id,recipe_id);
+    const userid = req.userid;
+    const recipeid = req.body.recipeid;
+    console.log(req.body.recipeid)
+    await user_utils.markAsFavorite(userid,recipeid);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
     next(error);
