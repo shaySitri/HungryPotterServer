@@ -284,24 +284,31 @@ components:
           type: string
           format: url
           example: "recipesImage\\{id=19}"
-        name:
+        title:
           type: string
           example: Chocolate Cake
-        time:
-          type: string
+        readyInMinutes:
+          type: int
           format: duration
-          example: 20 minutes
-        likes:
+          example: 20
+        popularity:
           type: integer
           example: 456
         vegan:
           type: boolean
           example: true
-        gluten:
+        vegetarian:
+          type: boolean
+          example: true
+        glutenFree:
           type: boolean
           example: true
     Ingredient:
       type: object
+      required:
+      - name
+      - quantity
+      - unit
       properties:
         name:
           type: string

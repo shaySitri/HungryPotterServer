@@ -10,10 +10,15 @@ async function getFavoriteRecipes(user_id){
 }
 
 
-function isURL(url)
-{
-    return /\.(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?$/.test(url);
-}
+function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
 function isImage(url) {
     return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
   }
@@ -22,28 +27,54 @@ function containsOnlyNumbers(str) {
 }
 async function addNewRecipe(recipeDeatils){
 
-    console.log("typof s:",typeof recipeDeatils.servings,"typeof rim:",recipeDeatils.readyInMinutes)
-    if ((containsOnlyNumbers(recipeDeatils.readyInMinutes) != 'true') || (containsOnlyNumbers(recipeDeatils.servings) != 'true'))
+    // Input check from the client, parse to int...
+
+    // Ready in minutes (should be an int)
+    if (containsOnlyNumbers(recipeDeatils.readyInMinutes, 10) == true)
     {
-        throw { status: 409, message: "Value unvaliable." };
+        readyInMinutes = parseInt(recipeDeatils.readyInMinutes, 10)
     }
-    if ((isURL(recipeDeatils.image) == false) || (isImage(recipeDeatils.image)))
+    else
+    {
+        throw { status: 409, message: "Value unvaliable. (Ready in minutes)" };
+    }
+
+    // Servings (should be int)
+    if (containsOnlyNumbers(recipeDeatils.servings, 10) == true)
+    {
+        servings = parseInt(recipeDeatils.servings, 10)
+    }
+    else
+    {
+        throw { status: 409, message: "Value unvaliable. (Servings)" };
+    }
+    
+    // Image - image url
+    if ((isValidUrl(recipeDeatils.image) == false) || (isImage(recipeDeatils.image) == false))
     {
         throw { status: 409, message: "Image unvaliable." };
     }
-    if ((typeof recipeDeatils.vegan != "boolean") || (typeof recipeDeatils.vegetarian != "boolean") || (typeof recipeDeatils.glutenFree != "boolean"))
+
+
+    // check booleans values
+    if ((containsOnlyNumbers(recipeDeatils.vegan) == false) || 
+    (containsOnlyNumbers(recipeDeatils.vegetarian) == false) || 
+    (containsOnlyNumbers(recipeDeatils.glutenFree) == false))
     {
         throw { status: 409, message: "Value boolean unvaliable." };
     }
+
+    // we save the instructions as long string in the SQL
+
 
     // how to check the ingrediants???
 
     const recipes_id = await DButils.execQuery(
         `INSERT INTO userRecipes (username,recipeId,title,readyInMinutes,image,popularity,vegan,vegetarian,glutenFree,ingredients,instructions,servings) 
         VALUES ('${recipeDeatils.username}', '${recipeDeatils.recipeId}', '${recipeDeatils.title}',
-        '${recipeDeatils.readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.popularity}',
+        '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.popularity}',
         '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}',
-        '${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${recipeDeatils.servings}');`
+        '${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${servings}');`
       );
     return recipes_id;
 }
