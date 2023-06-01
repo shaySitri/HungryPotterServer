@@ -230,7 +230,7 @@ paths:
         - user
         summary: user favorite recipes
         description: Save recipe in user favorite.
-        operationId: favorite
+        operationId: addFavorite
         requestBody:
           description: recipeid
           content:
@@ -251,6 +251,56 @@ paths:
                 explode: false
                 schema:
                   type: string
+          "400":
+            description: Invalid request body
+    get:
+        tags:
+        - user
+        summary: user favorite recipes
+        description: get all recipes saved in user favorites.
+        operationId: getFavorite, return all favorite recipes of user
+        responses:
+          "200":
+            description: Recipes retrived succedsfully
+            content:
+            application/json:
+              schema:
+              type: object
+              properties:
+              - recipeid: 
+                type: int
+              - preview:
+                $ref: '#/components/schemas/RecipeDetails'
+          "400":
+            description: Invalid request body
+    delete:
+        tags:
+        - user
+        summary: user favorite recipes
+        description: delete specific recipe.
+        operationId: delFavorite from user favorite recipes.
+        requestBody:
+            description: recipeid
+            content:
+              application/json:
+                schema:
+                  required:
+                  - recipeid
+                  properties:
+                    recipeid:
+                      type: int
+        responses:
+          "200":
+            description: Recipes retrived succedsfully
+            content:
+            application/json:
+              schema:
+              type: object
+              properties:
+              - recipeid: 
+                type: int
+              - preview:
+                $ref: '#/components/schemas/RecipeDetails'
           "400":
             description: Invalid request body
 components:

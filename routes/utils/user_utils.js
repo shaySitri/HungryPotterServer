@@ -1,8 +1,21 @@
 const DButils = require("./DButils");
 
+function checkID(recipeid)
+{
+    const re = new RegExp(/OR[0-9]+/);
+    let res = re.test(recipeid) || containsOnlyNumbers(recipeid)
+    return res;
+}
+
 async function markAsFavorite(userid, recipeid){
-    console.log(userid, recipeid);
-    await DButils.execQuery(`insert into favoriterecipes values ('${userid}',${recipeid})`);
+    if (checkID(recipeid) && containsOnlyNumbers(userid))
+    {
+        await DButils.execQuery(`insert into favoriterecipes values ('${userid}','${recipeid}')`);
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
 }
 
 async function getFavoriteRecipes(userid){
@@ -10,6 +23,18 @@ async function getFavoriteRecipes(userid){
     return recipesid;
 }
 
+async function delFavoriteRecipes(userid, recipeid){
+
+    if (checkID(recipeid) && containsOnlyNumbers(userid))
+    {
+        await DButils.execQuery(
+            `DELETE FROM favoriterecipes WHERE userid='${userid}' and recipeid='${recipeid}';`);
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
+}
 
 function isValidUrl(string) {
     try {
@@ -33,8 +58,9 @@ async function addNewRecipe(recipeDeatils){
     // Ready in minutes (should be an int)
     let reciepid = await DButils.execQuery(
         `SELECT COUNT('*') as count FROM userrecipes;`);
-    reciepid = reciepid[0].count + 1;
 
+    reciepid = reciepid[0].count + 1;
+    let recipenewid = "OR" + reciepid
     if (containsOnlyNumbers(recipeDeatils.readyInMinutes, 10) == true)
     {
         readyInMinutes = parseInt(recipeDeatils.readyInMinutes, 10)
@@ -76,7 +102,7 @@ async function addNewRecipe(recipeDeatils){
 
     const recipes_id = await DButils.execQuery(
         `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,popularity,vegan,vegetarian,glutenFree,ingredients,instructions,servings) 
-        VALUES ('${recipeDeatils.userid}', '${reciepid}', '${recipeDeatils.title}',
+        VALUES ('${recipeDeatils.userid}', '${recipenewid}', '${recipeDeatils.title}',
         '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.popularity}',
         '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}',
         '${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${servings}');`
@@ -87,3 +113,5 @@ async function addNewRecipe(recipeDeatils){
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.addNewRecipe = addNewRecipe;
+exports.containsOnlyNumbers = containsOnlyNumbers;
+exports.delFavoriteRecipes = delFavoriteRecipes;

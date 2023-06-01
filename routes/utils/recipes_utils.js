@@ -1,4 +1,6 @@
 const axios = require("axios");
+const DButils = require("./DButils");
+
 const api_domain = "https://api.spoonacular.com/recipes";
 
 
@@ -65,7 +67,7 @@ async function getRecipeInstructions(recipe_id) {
         )
       }
 
-      
+
     //  what to do if there is no instructions????
     
     for (let i = 0; i < analyzedInstructions.data.length; i++) {
@@ -84,6 +86,23 @@ async function getRecipeInstructions(recipe_id) {
     }
 }
 
+async function getRecipesPreviewDB(reciepid){
+
+    const recipesDetails = await DButils.execQuery(`select * from userrecipes where recipeId='${reciepid}'`);
+    let preview = 
+    {
+        id: recipesDetails[0].recipeId,
+        title: recipesDetails[0].title,
+        readyInMinutes: recipesDetails[0].readyInMinutes,
+        image: recipesDetails[0].image,
+        popularity: recipesDetails[0].aggregateLikes,
+        vegan: recipesDetails[0].vegan,
+        vegetarian: recipesDetails[0].vegetarian,
+        glutenFree: recipesDetails[0].glutenFree,
+    }
+    return preview
+}
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipeInstructions = getRecipeInstructions;
+exports.getRecipesPreviewDB = getRecipesPreviewDB;

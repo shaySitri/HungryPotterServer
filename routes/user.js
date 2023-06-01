@@ -63,7 +63,6 @@ router.post('/favorites', async (req,res,next) => {
   try{
     const userid = req.userid;
     const recipeid = req.body.recipeid;
-    console.log(req.body.recipeid)
     await user_utils.markAsFavorite(userid,recipeid);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
@@ -76,18 +75,52 @@ router.post('/favorites', async (req,res,next) => {
  */
 router.get('/favorites', async (req,res,next) => {
   try{
-    const user_id = req.session.user_id;
+    const user_id = req.session.userid;
     let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
+    recipes_id.map((element) => recipes_id_array.push(element.recipeid)); //extracting the recipe ids into array
+    let result = []
+    for (let i = 0; i < recipes_id_array.length; i++)
+    {
+      
+      if (user_utils.containsOnlyNumbers(recipes_id_array[i]))
+      {
+        details = await recipe_utils.getRecipeDetails(recipes_id_array[i]);
+      }
+      else
+      {
+        details = await recipe_utils.getRecipesPreviewDB(recipes_id_array[i]);
+      }
+      
+      result.push({
+        recipeid: recipes_id_array[i],
+        preview: details
+      })
+    }
+    
+    res.status(200).send(result);
+
   } catch(error){
     next(error); 
   }
 });
 
 
+
+/**
+ * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
+ */
+router.delete('/favorites', async (req,res,next) => {
+  try{
+    const userid = req.userid;
+    const recipeid = req.body.recipeid;
+    console.log(req.body.recipeid)
+    await user_utils.delFavoriteRecipes(userid,recipeid);
+    res.status(200).send("The Recipe successfully deleted from favorite");
+    } catch(error){
+    next(error);
+  }
+})
 
 module.exports = router;

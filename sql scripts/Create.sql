@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 CREATE TABLE userRecipes (
     userid INT(255),
-    recipeId INT(255),
+    recipeId VARCHAR(255),
     title VARCHAR(255),
     readyInMinutes INT(255),
     image VARCHAR(255),
@@ -27,5 +27,5 @@ CREATE TABLE userRecipes (
 
 CREATE TABLE favoriteRecipes (
     userid INT(255),
-    recipeId INT(255)
+    recipeId VARCHAR(255)
 );
