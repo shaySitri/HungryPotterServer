@@ -59,12 +59,14 @@ router.get("/search", async (req, res, next) => {
 
     if (recipes.length == 0)
     {
-      res.status(204).send("No recipes to display.");
+      
+      res.status(204).send({ message: "No recipes to display", success: true });
     }
     else
     {
-      res.status(200).send(recipes);
+      const query = req.query.query;
       req.session.lastSearches = query;
+      res.status(200).send(recipes);
     }
   } catch (error) {
     next(error); // 404
