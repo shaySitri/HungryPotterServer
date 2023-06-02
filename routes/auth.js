@@ -8,9 +8,6 @@ const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res, next) => {
   try {
-    // parameters exists
-    // valid parameters
-    // username exists
     let user_details = {
       username: req.body.username,
       firstname: req.body.firstname,
@@ -68,8 +65,7 @@ router.post("/login", async (req, res, next) => {
 
     // Set cookie
     req.session.userid = user.userid;
-    req.session.lastRecipes = [];
-    req.session.lastSearches = [];
+    req.session.lastSearches = "";
 
 
     // return cookie
@@ -79,7 +75,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/Logout", function (req, res) {
+router.post("/logout", function (req, res) {
   req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
   res.send({ success: true, message: "logout succeeded" });
 });
