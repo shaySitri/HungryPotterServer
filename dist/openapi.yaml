@@ -60,6 +60,49 @@ paths:
           description: recipe created
         "400":
           description: "invalid input, object invalid"
+  /users/myRecipes/{id}:
+    get:
+      tags:
+      - user
+      summary: get recipe created by the user
+      description: get full recipe created by the user
+      operationId: myRecipes
+      parameters:
+      - name: id
+        in: path
+        description: ID of the recipe to get
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "201":
+          description: recipe created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyRecipe'
+        "401":
+          description: "Unauthorized"
+  /users/myRecipes/:
+    get:
+      tags:
+      - user
+      summary: get all recipes previews created by the user
+      description: get previews of recipe created by the user
+      operationId: myRecipesPreviews
+      responses:
+        "200":
+          description: all previews retrived
+          content:
+            application/json:
+              schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MyRecipeDetails'
+        "401":
+          description: "Unauthorized"
   /recipes/preview/{id}:
     get:
       tags:
@@ -453,3 +496,68 @@ components:
           type: string
           description: user's password
           example: herm1@ne
+    MyRecipeDetails:
+        required:
+        - id
+        - title
+        - readyInMinutes
+        - image
+        - vegan
+        - vegetarian
+        - glutenFree
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          image:
+            type: string
+            format: url
+            example: "recipesImage\\{id=19}"
+          title:
+            type: string
+            example: Chocolate Cake
+          readyInMinutes:
+            type: int
+            format: duration
+            example: 20
+          vegan:
+            type: boolean
+            example: true
+          vegetarian:
+            type: boolean
+            example: true
+          glutenFree:
+            type: boolean
+            example: true
+    MyRecipe:
+      required:
+      - ingredients
+      - instructions
+      - servings
+      - recipe
+      type: object
+      properties:
+        recipe:
+          $ref: '#/components/schemas/MyRecipeDetails'
+        ingredients:
+          type: array
+          example:
+          - name: sugar
+            quantity: 1.25
+            unit: spoons
+          - name: flour
+            quantity: 2
+            unit: cups
+          - name: chocolate chips
+            quantity: 0.5
+            unit: cups
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        instructions:
+          type: array
+          example: ["Preheat the oven to 210 C.", "Mix the flour, sugar, and salt in a large bowl."]
+        servings:
+          type: integer
+          example: 12
+

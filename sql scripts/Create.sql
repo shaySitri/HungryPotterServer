@@ -16,7 +16,6 @@ CREATE TABLE userRecipes (
     title VARCHAR(255),
     readyInMinutes INT(255),
     image VARCHAR(255),
-    popularity INT(255),
     vegan BOOLEAN,
     vegetarian BOOLEAN,
     glutenFree BOOLEAN,

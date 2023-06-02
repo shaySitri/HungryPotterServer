@@ -26,17 +26,14 @@ router.use(async function (req, res, next) {
  * This path gets body with recipe details and add it to data base userrecipes
  */
 router.post('/addRecipe', async (req,res,next) => {
-
   
   try{
-  
     let recipeDeatils =
     {
       userid: req.userid,
       title: req.body.title,
       readyInMinutes: req.body.readyInMinutes,
       image:  req.body.image,
-      popularity: 0,
       vegan: req.body.vegan,
       vegetarian: req.body.vegetarian,
       glutenFree: req.body.glutenFree,
@@ -55,6 +52,54 @@ router.post('/addRecipe', async (req,res,next) => {
   }
 })
 
+/**
+ * This path gets body with recipe details (create by the user).
+ */
+router.get('/myRecipes/:id', async (req,res,next) => {
+  const recipeId = req.params.id;
+  const author = await user_utils.whoWroteMe(recipeId)
+  try{
+    if (author == req.userid)
+    {
+      const preview = await user_utils.getRecipesPreviewDB(recipeId);
+      const inst = await user_utils.getRecipesInstructionsDB(recipeId);
+
+      let fullRecipe =
+      {
+        ingredients: inst.ingredients,
+        instructions: inst.instructions,
+        servings: inst.servings,
+        recipeDeatils: preview
+
+      }
+      res.status(200).send(fullRecipe);
+    }
+    else
+    {
+      res.status(401).send("Unauthoriezed");
+    }
+
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
+
+/**
+ * This path desplay all recipes created by the user/.
+ */
+router.get('/myRecipes', async (req,res,next) => {
+  const author = req.userid;
+  try{
+      const preview = await user_utils.getAllRecipesPreviewDB(author)
+      res.status(200).send(preview);
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
 
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
@@ -83,24 +128,13 @@ router.get('/favorites', async (req,res,next) => {
     let result = []
     for (let i = 0; i < recipes_id_array.length; i++)
     {
-      
-      if (user_utils.containsOnlyNumbers(recipes_id_array[i]))
-      {
-        details = await recipe_utils.getRecipeDetails(recipes_id_array[i]);
-      }
-      else
-      {
-        details = await recipe_utils.getRecipesPreviewDB(recipes_id_array[i]);
-      }
-      
+      let details = await recipe_utils.getRecipeDetails(recipes_id_array[i]);      
       result.push({
-        recipeid: recipes_id_array[i],
-        preview: details
-      })
+          recipeid: recipes_id_array[i],
+          preview: details
+        })
     }
-    
     res.status(200).send(result);
-
   } catch(error){
     next(error); 
   }
@@ -115,7 +149,6 @@ router.delete('/favorites', async (req,res,next) => {
   try{
     const userid = req.userid;
     const recipeid = req.body.recipeid;
-    console.log(req.body.recipeid)
     await user_utils.delFavoriteRecipes(userid,recipeid);
     res.status(200).send("The Recipe successfully deleted from favorite");
     } catch(error){
