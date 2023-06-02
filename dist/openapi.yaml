@@ -54,12 +54,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Recipe'
+              $ref: '#/components/schemas/NewRecipe'
       responses:
         "201":
           description: recipe created
         "400":
-          description: "invalid input, object invalid"
+          description: "Parameters Error"
   /users/myRecipes/{id}:
     get:
       tags:
@@ -75,7 +75,7 @@ paths:
         style: simple
         explode: false
         schema:
-          type: integer
+          type: string
       responses:
         "201":
           description: recipe created
@@ -103,6 +103,53 @@ paths:
                 $ref: '#/components/schemas/MyRecipeDetails'
         "401":
           description: "Unauthorized"
+        "404":
+        description: "Wrong type of recipe."
+  /users/myRecipes/family/{id}:
+    get:
+      tags:
+      - user
+      summary: get recipe created by the user (recipes from type family)
+      description: get full recipe created by the user (recipes from type family)
+      operationId: myFamilyRecipes
+      parameters:
+      - name: id
+        in: path
+        description: ID of the recipe to get (FAXXX)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "201":
+          description: recipe created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyRecipe'
+        "401":
+          description: "Unauthorized"
+  /users/myRecipes/family:
+    get:
+      tags:
+      - user
+      summary: get all recipes previews created by the user (recipes from type family)
+      description: get previews of recipe created by the user (recipes from type family)
+      operationId: myFamilyRecipesPreviews
+      responses:
+        "200":
+          description: all previews retrived
+          content:
+            application/json:
+              schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MyRecipeDetails'
+        "401":
+          description: "Unauthorized"
+        "404":
+        description: "Wrong type of recipe."
   /recipes/preview/{id}:
     get:
       tags:
@@ -572,4 +619,16 @@ components:
         servings:
           type: integer
           example: 12
+    NewRecipe:
+      required:
+      - recipe
+      - type
+      type: object
+      properties:
+        recipe:
+          $ref: '#/components/schemas/Recipe'
+        type:
+          type: string
+          example: Family\Private
+
 

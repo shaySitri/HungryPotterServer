@@ -21,6 +21,62 @@ router.use(async function (req, res, next) {
   }
 });
 
+/**
+ * This path gets recipe parameter - recipe create by the user, from type FA.
+ */
+router.get('/myRecipes/family/:id', async (req,res,next) => {
+  const recipeId = req.params.id;
+  try{
+    const author = await user_utils.whoWroteMe(recipeId)
+    if (author == req.userid && user_utils.isFamily(recipeId))
+    {
+      const preview = await user_utils.getRecipesPreviewDB(recipeId);
+      const inst = await user_utils.getRecipesInstructionsDB(recipeId);
+
+      let fullRecipe =
+      {
+        ingredients: inst.ingredients,
+        instructions: inst.instructions,
+        servings: inst.servings,
+        recipeDeatils: preview
+
+      }
+      res.status(200).send(fullRecipe);
+    }
+    else if (user_utils.isPrivate(recipeId))
+    {
+      res.status(404).send("Not family recipe.");
+    }
+    else
+    {
+      res.status(401).send("Unauthoriezed");
+    }
+
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
+
+/**
+ * This path desplay all recipes created by the user/.
+ */
+router.get('/myRecipes/family', async (req,res,next) => {
+  const author = req.userid;
+  try{
+      const preview = await user_utils.getAllRecipesPreviewDB(author, "Family")
+      res.status(200).send(preview);
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
+
+
+
+
 
 /**
  * This path gets body with recipe details and add it to data base userrecipes
@@ -32,6 +88,7 @@ router.post('/addRecipe', async (req,res,next) => {
     {
       userid: req.userid,
       title: req.body.title,
+      type: req.body.type,
       readyInMinutes: req.body.readyInMinutes,
       image:  req.body.image,
       vegan: req.body.vegan,
@@ -57,8 +114,9 @@ router.post('/addRecipe', async (req,res,next) => {
  */
 router.get('/myRecipes/:id', async (req,res,next) => {
   const recipeId = req.params.id;
-  const author = await user_utils.whoWroteMe(recipeId)
   try{
+    const author = await user_utils.whoWroteMe(recipeId)
+
     if (author == req.userid)
     {
       const preview = await user_utils.getRecipesPreviewDB(recipeId);
@@ -92,7 +150,7 @@ router.get('/myRecipes/:id', async (req,res,next) => {
 router.get('/myRecipes', async (req,res,next) => {
   const author = req.userid;
   try{
-      const preview = await user_utils.getAllRecipesPreviewDB(author)
+      const preview = await user_utils.getAllRecipesPreviewDB(author, "Private")
       res.status(200).send(preview);
   }
   catch(error){
@@ -100,6 +158,7 @@ router.get('/myRecipes', async (req,res,next) => {
     }
   }
 )
+
 
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
