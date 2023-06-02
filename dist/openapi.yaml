@@ -150,6 +150,16 @@ paths:
           description: wrong password.
         "404":
           description: user doesn't exist
+  /logout:
+    post:
+      tags:
+      - authentication
+      summary: user logout
+      description: login from website.
+      operationId: logout
+      responses:
+        "200":
+          description: logout succeeded
   /randomRecipes:
     get:
       tags:
@@ -240,8 +250,10 @@ paths:
                   $ref: '#/components/schemas/Recipe'
         "204":
           description: No recipes found.
+        "400":
+          description: Parameters error.
         "404":
-          description: Missing parameters.
+          description: Server error.
   /register:
     post:
       tags:

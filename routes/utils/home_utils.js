@@ -67,7 +67,7 @@ async function getSearchResultApi(query) {
     }
     else
     {
-        throw { status: 404, message: "Search cannot be empty." };
+        throw { status: 400, message: "Search cannot be empty." };
     }
 
     if (query.cuisine != undefined)
@@ -80,7 +80,7 @@ async function getSearchResultApi(query) {
         }
         else
         {
-            throw { status: 409, message: "Cuisine dont avilable." };
+            throw { status: 400, message: "Cuisine dont avilable." };
         }
     }
 
@@ -92,7 +92,7 @@ async function getSearchResultApi(query) {
         }
         else
         {
-            throw { status: 409, message: "Diet dont avilable." };
+            throw { status: 400, message: "Diet dont avilable." };
         }
     }
 
@@ -105,7 +105,7 @@ async function getSearchResultApi(query) {
         }
         else
         {
-            throw { status: 409, message: "Intolerance dont avilable." };
+            throw { status: 400, message: "Intolerance dont avilable." };
         }
     }
     
@@ -117,7 +117,7 @@ async function getSearchResultApi(query) {
         }
         else
         {
-            throw { status: 409, message: "Sort dont avilable." };
+            throw { status: 400, message: "Sort dont avilable." };
         }
     }
 
@@ -131,7 +131,7 @@ async function getSearchResultApi(query) {
     {
         if (query.number != undefined)
         {
-            throw { status: 409, message: "Can display only 5\10\15 results.." };
+            throw { status: 400, message: "Can display only 5\10\15 results.." };
         }
         else
         {

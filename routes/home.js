@@ -34,9 +34,7 @@ router.get("/search", async (req, res, next) => {
     }
     const searchResult = (await home_utils.getSearchResult(query)).results; 
     
-    let randRecipes = []
-
-    console.log(searchResult.results); 
+    let recipes = []
 
     for (let i = 0; i < searchResult.length; i++) {
 
@@ -44,7 +42,7 @@ router.get("/search", async (req, res, next) => {
       let recipeInst = await recipes_utils.getRecipeInstructions(searchResult[i].id);
       
       
-      randRecipes.push(
+      recipes.push(
             {
                 id: searchResult[i].id,
                 title: searchResult[i].title,
@@ -59,9 +57,15 @@ router.get("/search", async (req, res, next) => {
         )
       }
 
-
-
-    res.send(randRecipes);
+    if (recipes.length == 0)
+    {
+      res.status(204).send("No recipes to display.");
+    }
+    else
+    {
+      res.status(200).send(recipes);
+      req.session.lastSearches = query;
+    }
   } catch (error) {
     next(error); // 404
     
