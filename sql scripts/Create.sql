@@ -28,3 +28,8 @@ CREATE TABLE favoriteRecipes (
     userid INT(255),
     recipeId VARCHAR(255)
 );
+
+CREATE TABLE lastViews(
+    userid INT(255),
+    recipeid VARCHAR(255)
+);

@@ -258,6 +258,35 @@ async function getAllRecipesPreviewDB(userid, type){
     return allPrev
 }
 
+// This function update the last recipes user wtached (both DB and API)
+async function updateLastViews(userid, recipeid){
+
+    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    {
+        await deleteFromLastViews(userid, recipeid);
+        await DButils.execQuery(`insert into lastviews values ('${userid}','${recipeid}')`);
+
+        const lastViews = await DButils.execQuery(`select * from lastviews where userid='${userid}'`);
+
+
+        if (lastViews.length > 3) {
+            const deletedRow = lastViews[0];
+            const deletedRecipeId = deletedRow.recipeid;        
+            await deleteFromLastViews(userid, deletedRecipeId);
+        }
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
+    
+
+}
+
+
+async function deleteFromLastViews(userid, recipeid){
+    await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' and recipeid='${recipeid}';`);
+}
 
 
 exports.markAsFavorite = markAsFavorite;
@@ -271,3 +300,4 @@ exports.whoWroteMe = whoWroteMe;
 exports.getAllRecipesPreviewDB = getAllRecipesPreviewDB;
 exports.isFamily = isFamily;
 exports.isPrivate = isPrivate;
+exports.updateLastViews = updateLastViews;

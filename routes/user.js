@@ -41,6 +41,7 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
         recipeDeatils: preview
 
       }
+      user_utils.updateLastViews(author, recipeId)
       res.status(200).send(fullRecipe);
     }
     else if (user_utils.isPrivate(recipeId))
@@ -130,6 +131,7 @@ router.get('/myRecipes/:id', async (req,res,next) => {
         recipeDeatils: preview
 
       }
+      user_utils.updateLastViews(author, recipeId)
       res.status(200).send(fullRecipe);
     }
     else

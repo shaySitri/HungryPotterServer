@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
+const user_utils = require("./utils/user_utils");
+const DButils = require("./utils/DButils");
 
 router.get("/", (req, res) => res.send("im here"));
 
@@ -23,20 +25,13 @@ router.get("/:id", async (req, res, next) => {
       recipeDetails
     }
 
-    // maintain cookies
+    DButils.execQuery("SELECT userid FROM users").then((users) => {
+      if (users.find((x) => x.userid === req.session.userid)) {
+        user_utils.updateLastViews(req.session.userid, req.params.id)
+      }
+    })
 
-    // if (req.session.username != null)
-    // {
-    //   if (req.session.lastRecipes > 3)
-    //   {
-    //     // remove the first recipe
-    //     (req.session.lastRecipes).splice(0, 1);
-    //     // add the current recipe
-    //     (req.session.lastRecipes).push(req.params.id);
-    //   }
-    // }
-
-    res.send(fullRecipe);
+  res.status(200).send(fullRecipe);
   } catch (error) {
     next(error); // 404
   }
