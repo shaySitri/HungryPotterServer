@@ -53,7 +53,6 @@ async function getRecipeInstructions(recipe_id) {
     let { extendedIngredients, servings } = recipe_info.data;
 
     let analyzedInstructions = await getRecipeInstructionsApi(recipe_id);
-    //let { instructions } = analyzedInstructions.data
     let allIng = []
     let inst = []
 
@@ -66,15 +65,12 @@ async function getRecipeInstructions(recipe_id) {
             }
         )
       }
-
-
-    //  what to do if there is no instructions????
     
     for (let i = 0; i < analyzedInstructions.data.length; i++) {
         obj =  analyzedInstructions.data[i];
-        for (let j = 0; i < obj.steps.length; i++)
+        for (let j = 0; j < obj.steps.length; j++)
         {
-            inst.push(obj.steps[i].step)
+            inst.push(obj.steps[j].step)
         }
     }   
     
@@ -86,7 +82,24 @@ async function getRecipeInstructions(recipe_id) {
     }
 }
 
+async function getAnalyzedInstructions(recipe_id) {
+
+    let analyzedInstructions = await getRecipeInstructionsApi(recipe_id);
+    let inst = []
+    
+    for (let i = 0; i < analyzedInstructions.data.length; i++) {
+        obj =  analyzedInstructions.data[i];
+        for (let j = 0; j < obj.steps.length; j++)
+        {
+            inst.push(obj.steps[j])
+        }
+    }   
+    
+
+    return inst;
+}
 
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRecipeInstructions = getRecipeInstructions;
+exports.getAnalyzedInstructions = getAnalyzedInstructions;

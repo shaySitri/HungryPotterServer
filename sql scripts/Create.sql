@@ -21,7 +21,9 @@ CREATE TABLE userRecipes (
     glutenFree BOOLEAN,
     ingredients VARCHAR(255),
     instructions VARCHAR(255),
-    servings INT(255)
+    servings INT(255),
+    type VARCHAR(255),
+    optionalDescription VARCHAR(255)
 );
 
 CREATE TABLE favoriteRecipes (
@@ -32,4 +34,10 @@ CREATE TABLE favoriteRecipes (
 CREATE TABLE lastViews(
     userid INT(255),
     recipeid VARCHAR(255)
+);
+
+CREATE TABLE prepareMeal(
+    userid INT(255),
+    recipeid VARCHAR(255),
+    orderNum INT(255)
 );

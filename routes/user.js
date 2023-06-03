@@ -22,6 +22,120 @@ router.use(async function (req, res, next) {
 });
 
 /**
+ * This path gets recipe parameter - and transfer to prepare recipe page.
+ */
+router.get('/recipes/:id', async (req,res,next) => {
+  const recipeId = req.params.id;
+  try{
+    if (user_utils.isFamily(recipeId) ||user_utils.isPrivate(recipeId) )
+    {
+      const author = await user_utils.whoWroteMe(recipeId)
+      if (author == req.userid) 
+      {
+          const inst = await user_utils.getRecipesInstructionsDB(recipeId);
+          let instructionsForRecipe =
+          {
+            ingredients: inst.ingredients,
+            instructions: inst.instructions,
+          }
+          res.status(200).send(instructionsForRecipe);
+      }
+      else
+      {
+        res.status(401).send("Unauthoriezed");
+      }
+    }
+    else if (user_utils.containsOnlyNumbers(recipeId))
+    {
+      const instructions = await recipe_utils.getAnalyzedInstructions(recipeId);
+      res.status(200).send(instructions);
+    }
+    else
+    {
+      res.status(401).send("Page doesnt exist.");
+    }
+
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
+
+
+/**
+ * This path dispaly all the recipes that the user want to prpeare.
+ */
+router.get('/recipes', async (req,res,next) => {
+  try{
+    const recipesid = await DButils.execQuery("SELECT recipeid FROM prepareMeal") 
+    let recipesPrev = []
+    for (let i = 0; i < recipesid.length; i++)
+    {
+      let recipeId = recipesid[i].recipeid;
+      if (user_utils.isFamily(recipeId) ||user_utils.isPrivate(recipeId) )
+      {
+        const author = await user_utils.whoWroteMe(recipeId)
+        if (author == req.userid) 
+        {
+            const inst = await user_utils.getRecipesPreviewDB(recipeId);
+            recipesPrev.push(inst)
+        }
+        else
+        {
+          res.status(401).send("Unauthoriezed");
+        }
+      }
+      else if (user_utils.containsOnlyNumbers(recipeId))
+      {
+            const inst = await recipe_utils.getRecipeDetails(recipeId);
+            recipesPrev.push(inst)
+      }
+      else
+      {
+        res.status(401).send(recipesPrev);
+      }
+    }
+    console.log(recipesPrev)
+    res.status(200).send(recipesPrev);
+
+  }
+  catch(error){
+      next(error);
+    }
+  }
+)
+
+
+/**
+ * This path gets body with recipeId and save this recipe in the prepare meal DB.
+ */
+router.post('/recipes', async (req,res,next) => {
+  try{
+    const userid = req.userid;
+    const recipeid = req.body.recipeid;
+    await user_utils.wantToPrepare(userid,recipeid);
+    res.status(200).send("The Recipe successfully saved as 'want to prepare'");
+    } catch(error){
+    next(error);
+  }
+})
+
+/**
+ * This path gets body with recipeId and delte from perpare meal table.
+ */
+router.delete('/recipes', async (req,res,next) => {
+  try{
+    const userid = req.userid;
+    const recipeid = req.body.recipeid;
+    await user_utils.dontWantToPrepare(userid,recipeid);
+    res.status(200).send("The Recipe successfully deleted from 'want to prepare'");
+    } catch(error){
+    next(error);
+  }
+})
+
+/**
  * This path gets recipe parameter - recipe create by the user, from type FA.
  */
 router.get('/myRecipes/family/:id', async (req,res,next) => {
@@ -97,7 +211,8 @@ router.post('/addRecipe', async (req,res,next) => {
       glutenFree: req.body.glutenFree,
       ingredients: req.body.ingredients,
       instructions: req.body.instructions,
-      servings: req.body.servings
+      servings: req.body.servings,
+      optionalDescription: req.body.optionalDescription
     }
 
 
@@ -209,7 +324,7 @@ router.get('/lastViews', async (req,res,next) => {
   try{
     const user_id = req.session.userid;
     const recipes_id = await user_utils.getLastWatchedRecipes(user_id);
-\    let resultPrev = []
+    let resultPrev = []
     for (let i = 0; i < recipes_id.length; i++)
     {
       let recipeId = recipes_id[i].recipeid;

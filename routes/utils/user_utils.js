@@ -76,16 +76,17 @@ async function addNewRecipe(recipeDeatils){
         `SELECT COUNT('*') as count FROM userrecipes;`);
 
     reciepid = reciepid[0].count + 1;
-    let recipenewid;
-    console.log(recipeDeatils.type)
+    let recipenewid, optional;
     // Create recipe id according to its type.
     if (recipeDeatils.type == "Family")
     {
         recipenewid = "FA" + reciepid
+        optional = recipeDeatils.optionalDescription;
     }
     else if (recipeDeatils.type == "Private")
     {
         recipenewid = "OR" + reciepid
+        optional = "x"
     }
     else
     {
@@ -132,24 +133,24 @@ async function addNewRecipe(recipeDeatils){
 
     // we save the instructions as long string in the SQL
     let instructions = recipeDeatils.instructions.split('\n')
-    let ingrediants = recipeDeatils.ingrediants.split(',')
+    let ingrediants = recipeDeatils.ingredients.split(',')
 
     for (let i = 0; i < ingrediants.length; i++)
     {
-        let ing = allIng[i].split('-');
-        if (!containsOnlyLetters(ing[0]) || !containsOnlyNumbers(ing[1]) || !unit.includes(ing[2]) || !normalString(instructions))
+        let ing = ingrediants[i].split('-');
+        ing[1] = parseInt(ing[1], 10) 
+        if (!containsOnlyLetters(ing[0]) || !containsOnlyNumbers(ing[1]) || !unit.includes(ing[2]) || !normalString(instructions) || !normalString(optional))
         {
             throw { status: 400, message: "Wrong format" };
         }
     }
 
     const recipes_id = await DButils.execQuery(
-        `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,vegan,vegetarian,glutenFree,ingredients,instructions,servings) 
-        VALUES ('${recipeDeatils.userid}', '${recipenewid}', '${recipeDeatils.title}',
-        '${readyInMinutes}', '${recipeDeatils.image}',
-        '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}',
-        '${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${servings}');`
+        `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,vegan,vegetarian,glutenFree,ingredients,instructions,servings,optionalDescription) 
+        VALUES ('${recipeDeatils.userid}', '${recipenewid}', '${recipeDeatils.title}', '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}','${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${recipeDeatils.servings}','${optional}');`
       );
+
+
     return recipes_id;
 }
 
@@ -164,7 +165,6 @@ async function getRecipesPreviewDB(reciepid){
         title: recipesDetails[0].title,
         readyInMinutes: recipesDetails[0].readyInMinutes,
         image: recipesDetails[0].image,
-        popularity: recipesDetails[0].aggregateLikes,
         vegan: recipesDetails[0].vegan,
         vegetarian: recipesDetails[0].vegetarian,
         glutenFree: recipesDetails[0].glutenFree,
@@ -247,6 +247,7 @@ async function getAllRecipesPreviewDB(userid, type){
 
 
 
+
 // This function update the last recipes user wtached (both DB and API)
 async function markAsWatched(userid, recipeid){
 
@@ -282,7 +283,51 @@ async function getLastWatchedRecipes(userid){
 }
 
 
+// This function add recipes to user prepared meal.
+// Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
+async function wantToPrepare(userid, recipeid){
+    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    {
+        const doesRecipeExist = await DButils.execQuery(
+            `SELECT * FROM preparemeal where (userid='${userid}' and recipeid='${recipeid}');`);
+        console.log(doesRecipeExist)
+        if (doesRecipeExist.length == 0)
+        {
+            // Ready in minutes (should be an int)
+            let orderNum = await DButils.execQuery(
+                `SELECT COUNT('*') as count FROM preparemeal where userid='${userid}';`);
 
+            orderNum = orderNum[0].count + 1;
+            
+            console.log(orderNum)
+            await DButils.execQuery(`insert into preparemeal (userid,recipeid,orderNum) values ('${userid}','${recipeid}','${orderNum}')`);
+        }
+        else
+        {
+            throw { status: 304, message: "User already added the rexipe to 'prepare meal'." };
+        }
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
+}
+
+async function dontWantToPrepare(userid, recipeid)
+{
+    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    {
+        await DButils.execQuery(
+            `DELETE FROM preparemeal where userid='${userid}' and recipeid='${recipeid}';`);
+        const res3 = await DButils.execQuery(
+                `SELECT * FROM preparemeal;`);
+        console.log(res3.length)
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
+}
 
 
 exports.markAsFavorite = markAsFavorite;
@@ -297,3 +342,5 @@ exports.isFamily = isFamily;
 exports.isPrivate = isPrivate;
 exports.markAsWatched = markAsWatched;
 exports.getLastWatchedRecipes = getLastWatchedRecipes;
+exports.wantToPrepare = wantToPrepare;
+exports.dontWantToPrepare = dontWantToPrepare;
