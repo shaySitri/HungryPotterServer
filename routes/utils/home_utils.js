@@ -162,6 +162,5 @@ async function getSearchResult(query) {
 }
 
 
-
 exports.getRandomRecieps = getRandomRecieps;
 exports.getSearchResult = getSearchResult;

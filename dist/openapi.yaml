@@ -228,6 +228,27 @@ paths:
                   $ref: '#/components/schemas/RecipeDetails'
         "204":
           description: No recipes found.
+  /users/lastViews:
+    get:
+      tags:
+      - user
+      summary: get last 3 recipes watched by the user - (db lastviews).
+      description: display preview of last 3 watched recipes.
+      operationId: lastViewsUpdate
+      responses:
+        "200":
+          description: Previews retrived successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: array of 3 previews of reccipa
+                items:
+                - $ref: '#/components/schemas/RecipeDetails'
+                - $ref: '#/components/schemas/MyRecipeDetails'
+        "404":
+          description: Server error.
+
   /search:
     get:
       tags:
@@ -361,36 +382,6 @@ paths:
         summary: user favorite recipes
         description: get all recipes saved in user favorites.
         operationId: getFavorite, return all favorite recipes of user
-        responses:
-          "200":
-            description: Recipes retrived succedsfully
-            content:
-            application/json:
-              schema:
-              type: object
-              properties:
-              - recipeid: 
-                type: int
-              - preview:
-                $ref: '#/components/schemas/RecipeDetails'
-          "400":
-            description: Invalid request body
-    delete:
-        tags:
-        - user
-        summary: user favorite recipes
-        description: delete specific recipe.
-        operationId: delFavorite from user favorite recipes.
-        requestBody:
-            description: recipeid
-            content:
-              application/json:
-                schema:
-                  required:
-                  - recipeid
-                  properties:
-                    recipeid:
-                      type: int
         responses:
           "200":
             description: Recipes retrived succedsfully

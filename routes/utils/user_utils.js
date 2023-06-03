@@ -64,19 +64,6 @@ async function getFavoriteRecipes(userid){
     return recipesid;
 }
 
-// Delete recipe from user favorite.
-async function delFavoriteRecipes(userid, recipeid){
-
-    if (containsOnlyNumbers(recipeid))
-    {
-        await DButils.execQuery(
-            `DELETE FROM favoriterecipes WHERE userid='${userid}' and recipeid='${recipeid}';`);
-    }
-    else
-    {
-        throw { status: 404, message: "Unvalid userid or recipeid." };
-    }
-}
 
 //  This function add new recipe to DB.
 const unit = [ "cups", "tablespoons", "teaspoons", "grams", "ounces", "pounds", "pieces", "slices"]
@@ -258,46 +245,55 @@ async function getAllRecipesPreviewDB(userid, type){
     return allPrev
 }
 
-// This function update the last recipes user wtached (both DB and API)
-async function updateLastViews(userid, recipeid){
 
+
+// This function update the last recipes user wtached (both DB and API)
+async function markAsWatched(userid, recipeid){
+
+    // is recipe id is valid and not contain some malicious code.
     if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
     {
-        await deleteFromLastViews(userid, recipeid);
-        await DButils.execQuery(`insert into lastviews values ('${userid}','${recipeid}')`);
-
-        const lastViews = await DButils.execQuery(`select * from lastviews where userid='${userid}'`);
-
-
-        if (lastViews.length > 3) {
-            const deletedRow = lastViews[0];
-            const deletedRecipeId = deletedRow.recipeid;        
-            await deleteFromLastViews(userid, deletedRecipeId);
+        const specificRecipe = await DButils.execQuery(`select * from lastviews where userid='${userid}' and recipeid='${recipeid}';`);
+        if (specificRecipe.length != 0)
+        {
+            await deleteFromLastViews(userid, recipeid)
         }
+
+        await DButils.execQuery(`insert into lastviews values ('${userid}','${recipeid}')`);
     }
     else
     {
         throw { status: 404, message: "Unvalid userid or recipeid." };
     }
-    
-
+    let all = await DButils.execQuery(`select * from lastviews where userid='${userid}';`);
 }
 
 
 async function deleteFromLastViews(userid, recipeid){
-    await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' and recipeid='${recipeid}';`);
+    const res = await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' AND recipeid='${recipeid}';`);
 }
+
+// This function return the last recipes id that have been watched by logged-in user.
+async function getLastWatchedRecipes(userid){
+
+    // we assume that user-id validate (send with the cookie)
+    const allWatchedRecipes = await DButils.execQuery(`select recipeid from lastviews where userid='${userid}';`);
+    return allWatchedRecipes.slice(-3);
+}
+
+
+
 
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.addNewRecipe = addNewRecipe;
 exports.containsOnlyNumbers = containsOnlyNumbers;
-exports.delFavoriteRecipes = delFavoriteRecipes;
 exports.getRecipesPreviewDB = getRecipesPreviewDB;
 exports.getRecipesInstructionsDB = getRecipesInstructionsDB;
 exports.whoWroteMe = whoWroteMe;
 exports.getAllRecipesPreviewDB = getAllRecipesPreviewDB;
 exports.isFamily = isFamily;
 exports.isPrivate = isPrivate;
-exports.updateLastViews = updateLastViews;
+exports.markAsWatched = markAsWatched;
+exports.getLastWatchedRecipes = getLastWatchedRecipes;

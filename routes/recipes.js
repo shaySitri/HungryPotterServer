@@ -27,7 +27,7 @@ router.get("/:id", async (req, res, next) => {
 
     DButils.execQuery("SELECT userid FROM users").then((users) => {
       if (users.find((x) => x.userid === req.session.userid)) {
-        user_utils.updateLastViews(req.session.userid, req.params.id)
+        user_utils.markAsWatched(req.session.userid, req.params.id)
       }
     })
 

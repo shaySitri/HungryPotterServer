@@ -41,7 +41,7 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
         recipeDeatils: preview
 
       }
-      user_utils.updateLastViews(author, recipeId)
+      user_utils.markAsWatched(author, recipeId)
       res.status(200).send(fullRecipe);
     }
     else if (user_utils.isPrivate(recipeId))
@@ -131,7 +131,7 @@ router.get('/myRecipes/:id', async (req,res,next) => {
         recipeDeatils: preview
 
       }
-      user_utils.updateLastViews(author, recipeId)
+      user_utils.markAsWatched(author, recipeId)
       res.status(200).send(fullRecipe);
     }
     else
@@ -202,19 +202,33 @@ router.get('/favorites', async (req,res,next) => {
 });
 
 
-
 /**
- * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
+ * This path returns the last 3 watched recipes that watched by the logged-in user
  */
-router.delete('/favorites', async (req,res,next) => {
+router.get('/lastViews', async (req,res,next) => {
   try{
-    const userid = req.userid;
-    const recipeid = req.body.recipeid;
-    await user_utils.delFavoriteRecipes(userid,recipeid);
-    res.status(200).send("The Recipe successfully deleted from favorite");
-    } catch(error){
-    next(error);
+    const user_id = req.session.userid;
+    const recipes_id = await user_utils.getLastWatchedRecipes(user_id);
+\    let resultPrev = []
+    for (let i = 0; i < recipes_id.length; i++)
+    {
+      let recipeId = recipes_id[i].recipeid;
+      if (user_utils.containsOnlyNumbers(recipeId))
+      {
+        resultPrev.push(await recipe_utils.getRecipeDetails(recipeId))
+      }
+      else
+      {
+        resultPrev.push(await user_utils.getRecipesPreviewDB(recipeId))
+      }
+    }
+
+    resultPrev = resultPrev.reverse();
+    res.status(200).send(resultPrev);
+  } catch(error){
+    next(error); 
   }
-})
+});
+
 
 module.exports = router;
