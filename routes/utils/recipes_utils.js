@@ -10,7 +10,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
  * @param {*} recipes_info 
  */
 
-
+// This function get recipe id and return its information from API.
 async function getRecipeInformation(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {
@@ -21,7 +21,7 @@ async function getRecipeInformation(recipe_id) {
 }
 
 
-
+// This funcrion parse the information and return recipe preview.
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
@@ -38,6 +38,7 @@ async function getRecipeDetails(recipe_id) {
     }
 }
 
+// This function get recipe id and return its information from API.
 async function getRecipeInstructionsApi(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/analyzedInstructions`, {
         params: {
@@ -47,6 +48,7 @@ async function getRecipeInstructionsApi(recipe_id) {
     });
 }
 
+// This funcrion parse the some of the information and the analyzed instructions and return its full recipe details.
 async function getRecipeInstructions(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
 
@@ -56,6 +58,7 @@ async function getRecipeInstructions(recipe_id) {
     let allIng = []
     let inst = []
 
+    // parse ingredients in our API form.
     for (let i = 0; i < extendedIngredients.length; i++) {
         allIng.push(
             {
@@ -66,6 +69,7 @@ async function getRecipeInstructions(recipe_id) {
         )
       }
     
+    // parse analyzed instruction into steps
     for (let i = 0; i < analyzedInstructions.data.length; i++) {
         obj =  analyzedInstructions.data[i];
         for (let j = 0; j < obj.steps.length; j++)
@@ -74,7 +78,6 @@ async function getRecipeInstructions(recipe_id) {
         }
     }   
     
-
     return {
         ingredients: allIng,
         servings: servings,
@@ -82,6 +85,7 @@ async function getRecipeInstructions(recipe_id) {
     }
 }
 
+// BONUS - get the full information from analyzed instructions.
 async function getAnalyzedInstructions(recipe_id) {
 
     let analyzedInstructions = await getRecipeInstructionsApi(recipe_id);

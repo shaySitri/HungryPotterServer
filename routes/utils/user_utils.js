@@ -1,5 +1,10 @@
 const DButils = require("./DButils");
+const recipes_utils = require("./recipes_utils");
 
+// -----------------------------------------------------------------
+// --------------------- VALIDATION FUNCTIONS ----------------------
+
+// This check if recipeId exist on DB.
 function isFamily(recipeid)
 {
     const re = new RegExp(/FA[0-9]+/);
@@ -13,6 +18,30 @@ function isPrivate(recipeid)
     return res;
 }
 
+// This function get recipeid and check if the recipe exist (DB or API)
+async function recipeExist(recipeid)
+{
+    if (isFamily(recipeid) || isPrivate(recipeid))
+    {
+        const re = await DButils.execQuery(`select recipeid from userrecipes where recipeId='${recipeid}'`);
+        return re.length > 0;
+    }
+    else
+    {
+        try
+        {
+            const re = await recipes_utils.getRecipeDetails(recipeid)
+            return re.id == recipeid    
+        }
+        catch(error)
+        {
+            throw { status: 404, message: "Unvalid userid or recipeid." };
+        }
+    }
+}
+
+
+// This check if string represent url.
 function isValidUrl(string) {
     try {
       new URL(string);
@@ -22,32 +51,37 @@ function isValidUrl(string) {
     }
   }
 
+  // This check if url is from tyoe image.
 function isImage(url) {
     return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
   }
 
+  // This check if string contains numbers only,
 function containsOnlyNumbers(str) {
     return /^\d+$/.test(str);
 }
-
+  // This check if string contains letters only,
 function containsOnlyLetters(str) {
     const re = new RegExp(/[a-zA-Z ]+/);
     let res = re.test(str)
     return res;
 
 }
-
+  // This check if string doesnt contain special charcters like: @#$^&,
 function normalString(str) {
     const re = new RegExp(/[0-9a-zA-Z !.,:()%\s]+/);
     let res = re.test(str)
     return res;
 }
 
+// -----------------------------------------------------------------
+// --------------------------- FAVORITES ----------------------------
 
 // This function add API recipes to user favorite.
 // Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
 async function markAsFavorite(userid, recipeid){
-    if (containsOnlyNumbers(recipeid))
+    const exist = await recipeExist(recipeid)
+    if (exist)
     {
         await DButils.execQuery(`insert into favoriterecipes values ('${userid}','${recipeid}')`);
     }
@@ -64,14 +98,18 @@ async function getFavoriteRecipes(userid){
     return recipesid;
 }
 
+// -----------------------------------------------------------------
+// ----------------------- ADD NEW RECIPES ------------------------
+
+// list of possible units of ingrediants.
+const unit = [ "cups", "tablespoons", "teaspoons", "grams", "ounces", "pounds", "pieces", "slices"]
 
 //  This function add new recipe to DB.
-const unit = [ "cups", "tablespoons", "teaspoons", "grams", "ounces", "pounds", "pieces", "slices"]
 async function addNewRecipe(recipeDeatils){
 
-    // Input check from the client, parse to int...
 
-    // Ready in minutes (should be an int)
+    // create recipe id:
+
     let reciepid = await DButils.execQuery(
         `SELECT COUNT('*') as count FROM userrecipes;`);
 
@@ -132,13 +170,18 @@ async function addNewRecipe(recipeDeatils){
     }
 
     // we save the instructions as long string in the SQL
-    let instructions = recipeDeatils.instructions.split('\n')
-    let ingrediants = recipeDeatils.ingredients.split(',')
+    let instructions = recipeDeatils.instructions.split('\n') // instructions - after evry instruction will be /n
+    
+    // all ingrediants sperated by ,
+    // example to ingrediants: sugar-5-cups,milk-2-spoons
+
+    let ingrediants = recipeDeatils.ingredients.split(',') 
 
     for (let i = 0; i < ingrediants.length; i++)
     {
         let ing = ingrediants[i].split('-');
         ing[1] = parseInt(ing[1], 10) 
+        // ing[0] - name of the ingrediant, ing[1] - amount of the ingrediant, ing[2] - unit
         if (!containsOnlyLetters(ing[0]) || !containsOnlyNumbers(ing[1]) || !unit.includes(ing[2]) || !normalString(instructions) || !normalString(optional))
         {
             throw { status: 400, message: "Wrong format" };
@@ -154,63 +197,87 @@ async function addNewRecipe(recipeDeatils){
     return recipes_id;
 }
 
+// -----------------------------------------------------------------
+// ------------------------ DISPLAY RECIPES ------------------------
 
 // This function get recipeID and return its preview from DB.
 async function getRecipesPreviewDB(reciepid){
 
-    const recipesDetails = await DButils.execQuery(`select * from userrecipes where recipeId='${reciepid}'`);
-    let preview = 
+    // validity check 
+    const exist = await recipeExist(reciepid)
+    if (exist)
     {
-        id: recipesDetails[0].recipeId,
-        title: recipesDetails[0].title,
-        readyInMinutes: recipesDetails[0].readyInMinutes,
-        image: recipesDetails[0].image,
-        vegan: recipesDetails[0].vegan,
-        vegetarian: recipesDetails[0].vegetarian,
-        glutenFree: recipesDetails[0].glutenFree,
+        const recipesDetails = await DButils.execQuery(`select * from userrecipes where recipeId='${reciepid}'`);
+        let preview = 
+        {
+            id: recipesDetails[0].recipeId,
+            title: recipesDetails[0].title,
+            readyInMinutes: recipesDetails[0].readyInMinutes,
+            image: recipesDetails[0].image,
+            vegan: recipesDetails[0].vegan,
+            vegetarian: recipesDetails[0].vegetarian,
+            glutenFree: recipesDetails[0].glutenFree,
+        }
+        return preview
     }
-    return preview
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
 }
+// -----------------------------------------------------------------
 
 // This function get recipeID and return its full instructions from DB.
 async function getRecipesInstructionsDB(reciepid){
 
-    const recipesDetails = await DButils.execQuery(`select * from userrecipes where recipeId='${reciepid}'`);
-    let details = 
-    {
-        ingredients: recipesDetails[0].ingredients, // xx-xx-xx,yy-yy-yy
-        servings: recipesDetails[0].servings,
-        instructions: recipesDetails[0].instructions    
+    // validity check 
+    const exist = await recipeExist(reciepid)
+    if (exist)
+    {    
+        const recipesDetails = await DButils.execQuery(`select * from userrecipes where recipeId='${reciepid}'`);
+        let details = 
+        {
+            ingredients: recipesDetails[0].ingredients, // xx-xx-xx,yy-yy-yy
+            servings: recipesDetails[0].servings,
+            instructions: recipesDetails[0].instructions    
+        }
+
+        // split ingridients: 
+        const allIng = details.ingredients.split(',');
+        let allIngProperties = []
+        for (let i = 0; i < allIng.length; i++)
+        {
+            // asume data hs been valisated by the server
+            let ing = allIng[i].split('-');
+            allIngProperties.push(
+                {
+                    name: ing[0],
+                    quantity: ing[1],
+                    unit: ing[2]
+                }
+            )
+        }
+
+        let recipeInst = details.instructions.split('\n');
+
+        return {
+            ingredients: allIngProperties,
+            servings: details.servings,
+            instructions: recipeInst
+        }
     }
-
-    // split ingridients: 
-    const allIng = details.ingredients.split(',');
-    let allIngProperties = []
-    for (let i = 0; i < allIng.length; i++)
+    else
     {
-        // asume data hs been valisated by the server
-        let ing = allIng[i].split('-');
-        allIngProperties.push(
-            {
-                name: ing[0],
-                quantity: ing[1],
-                unit: ing[2]
-            }
-        )
-    }
-
-    let recipeInst = details.instructions.split('\n');
-
-    return {
-        ingredients: allIngProperties,
-        servings: details.servings,
-        instructions: recipeInst
+        throw { status: 404, message: "Unvalid userid or recipeid." };
     }
 }
+// -----------------------------------------------------------------
 
 // This function check that the requester of the recipe is the one who wrote this.
 async function whoWroteMe(recipeid){
-    if (isFamily(recipeid) || isPrivate(recipeid))
+    // validity check 
+    const exist = await recipeExist(recipeid)
+    if (exist)
     {
         const recipeDetails = await DButils.execQuery(`select userid from userrecipes where recipeid='${recipeid}';`);
         if (recipeDetails.length == 0)
@@ -224,6 +291,7 @@ async function whoWroteMe(recipeid){
         throw { status: 404, message: "Unvalid userid or recipeid." };
     }
 }
+// -----------------------------------------------------------------
 
 // This function get user ID and type (family\private), and display to the user all of its recipe from this type.
 async function getAllRecipesPreviewDB(userid, type){
@@ -232,6 +300,7 @@ async function getAllRecipesPreviewDB(userid, type){
     let allPrev = []
     for (let i = 0; i < recipes.length; i ++)
     {
+        // validity check 
         if (type == "Private" && isPrivate(recipes[i].recipeId))
         {
             allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
@@ -241,18 +310,23 @@ async function getAllRecipesPreviewDB(userid, type){
         {
             allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
         }
+        else
+        {
+            throw { status: 404, message: "Unvalid userid or recipeid." };
+        }
     }
     return allPrev
 }
 
 
-
+// -----------------------------------------------------------------
+// -------------------------- WATCH LIST ---------------------------
 
 // This function update the last recipes user wtached (both DB and API)
 async function markAsWatched(userid, recipeid){
-
     // is recipe id is valid and not contain some malicious code.
-    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    const exist = await recipeExist(recipeid)
+    if (exist) 
     {
         const specificRecipe = await DButils.execQuery(`select * from lastviews where userid='${userid}' and recipeid='${recipeid}';`);
         if (specificRecipe.length != 0)
@@ -266,13 +340,23 @@ async function markAsWatched(userid, recipeid){
     {
         throw { status: 404, message: "Unvalid userid or recipeid." };
     }
-    let all = await DButils.execQuery(`select * from lastviews where userid='${userid}';`);
 }
 
+// -----------------------------------------------------------------
 
+// This function delete recipeid from watch-list of userid.
 async function deleteFromLastViews(userid, recipeid){
-    const res = await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' AND recipeid='${recipeid}';`);
+    const exist = await recipeExist(reciepid)
+    if (exist) 
+    {
+        const res = await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' AND recipeid='${recipeid}';`);
+    }
+    else
+    {
+        throw { status: 404, message: "Unvalid userid or recipeid." };
+    }
 }
+// -----------------------------------------------------------------
 
 // This function return the last recipes id that have been watched by logged-in user.
 async function getLastWatchedRecipes(userid){
@@ -281,25 +365,26 @@ async function getLastWatchedRecipes(userid){
     const allWatchedRecipes = await DButils.execQuery(`select recipeid from lastviews where userid='${userid}';`);
     return allWatchedRecipes.slice(-3);
 }
+// -----------------------------------------------------------------
+// ------------------------------- BONUS ---------------------------
 
 
 // This function add recipes to user prepared meal.
 // Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
 async function wantToPrepare(userid, recipeid){
-    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    const exist = await recipeExist(reciepid)
+    if (exist) 
     {
         const doesRecipeExist = await DButils.execQuery(
             `SELECT * FROM preparemeal where (userid='${userid}' and recipeid='${recipeid}');`);
-        console.log(doesRecipeExist)
         if (doesRecipeExist.length == 0)
         {
-            // Ready in minutes (should be an int)
+            // create order num
             let orderNum = await DButils.execQuery(
                 `SELECT COUNT('*') as count FROM preparemeal where userid='${userid}';`);
 
             orderNum = orderNum[0].count + 1;
             
-            console.log(orderNum)
             await DButils.execQuery(`insert into preparemeal (userid,recipeid,orderNum) values ('${userid}','${recipeid}','${orderNum}')`);
         }
         else
@@ -312,16 +397,18 @@ async function wantToPrepare(userid, recipeid){
         throw { status: 404, message: "Unvalid userid or recipeid." };
     }
 }
+// -----------------------------------------------------------------
 
+// This function delete recipe from prepare-meal list.
 async function dontWantToPrepare(userid, recipeid)
 {
-    if (containsOnlyNumbers(recipeid) || isFamily(recipeid) || isPrivate(recipeid))
+    const exist = await recipeExist(reciepid)
+    if (exist) 
     {
         await DButils.execQuery(
             `DELETE FROM preparemeal where userid='${userid}' and recipeid='${recipeid}';`);
         const res3 = await DButils.execQuery(
                 `SELECT * FROM preparemeal;`);
-        console.log(res3.length)
     }
     else
     {
