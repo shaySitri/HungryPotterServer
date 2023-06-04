@@ -21,15 +21,19 @@ router.use(async function (req, res, next) {
   }
 });
 
+// ------------------------- BONUS -------------------------
+
 /**
- * This path gets recipe parameter - and transfer to prepare recipe page.
+ * This path gets recipe parameter - and transfer to prepare recipe page. (BONUS)
  */
 router.get('/recipes/:id', async (req,res,next) => {
   const recipeId = req.params.id;
   try{
+    // handle user made recipes.
     if (user_utils.isFamily(recipeId) ||user_utils.isPrivate(recipeId) )
     {
       const author = await user_utils.whoWroteMe(recipeId)
+      // get the recipes only if its own by the user.
       if (author == req.userid) 
       {
           const inst = await user_utils.getRecipesInstructionsDB(recipeId);
@@ -45,6 +49,7 @@ router.get('/recipes/:id', async (req,res,next) => {
         res.status(401).send("Unauthoriezed");
       }
     }
+    // handle api recipe.
     else if (user_utils.containsOnlyNumbers(recipeId))
     {
       const instructions = await recipe_utils.getAnalyzedInstructions(recipeId);
@@ -64,7 +69,7 @@ router.get('/recipes/:id', async (req,res,next) => {
 
 
 /**
- * This path dispaly all the recipes that the user want to prpeare.
+ * This path dispaly all the recipes that the user want to prpeare. (BONUS)
  */
 router.get('/recipes', async (req,res,next) => {
   try{
@@ -72,12 +77,15 @@ router.get('/recipes', async (req,res,next) => {
     let recipesPrev = []
     for (let i = 0; i < recipesid.length; i++)
     {
+      // handle recipe made by user (stored in db)
       let recipeId = recipesid[i].recipeid;
       if (user_utils.isFamily(recipeId) ||user_utils.isPrivate(recipeId) )
       {
+        // authenticate the user
         const author = await user_utils.whoWroteMe(recipeId)
         if (author == req.userid) 
         {
+          // get recipe preview
             const inst = await user_utils.getRecipesPreviewDB(recipeId);
             recipesPrev.push(inst)
         }
@@ -86,6 +94,7 @@ router.get('/recipes', async (req,res,next) => {
           res.status(401).send("Unauthoriezed");
         }
       }
+      // handle api recipe
       else if (user_utils.containsOnlyNumbers(recipeId))
       {
             const inst = await recipe_utils.getRecipeDetails(recipeId);
@@ -121,6 +130,7 @@ router.post('/recipes', async (req,res,next) => {
   }
 })
 
+
 /**
  * This path gets body with recipeId and delte from perpare meal table.
  */
@@ -135,6 +145,10 @@ router.delete('/recipes', async (req,res,next) => {
   }
 })
 
+// ---------------------------------------------------------
+
+// -------------------- FAMILY RECIPES --------------------
+
 /**
  * This path gets recipe parameter - recipe create by the user, from type FA.
  */
@@ -142,6 +156,7 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
   const recipeId = req.params.id;
   try{
     const author = await user_utils.whoWroteMe(recipeId)
+    // author authentication
     if (author == req.userid && user_utils.isFamily(recipeId))
     {
       const preview = await user_utils.getRecipesPreviewDB(recipeId);
@@ -190,8 +205,9 @@ router.get('/myRecipes/family', async (req,res,next) => {
 )
 
 
+// ---------------------------------------------------------
 
-
+// ----------------------- ADD RECIPE -----------------------
 
 /**
  * This path gets body with recipe details and add it to data base userrecipes
@@ -203,7 +219,7 @@ router.post('/addRecipe', async (req,res,next) => {
     {
       userid: req.userid,
       title: req.body.title,
-      type: req.body.type,
+      type: req.body.type, // Family/Private
       readyInMinutes: req.body.readyInMinutes,
       image:  req.body.image,
       vegan: req.body.vegan,
@@ -212,27 +228,31 @@ router.post('/addRecipe', async (req,res,next) => {
       ingredients: req.body.ingredients,
       instructions: req.body.instructions,
       servings: req.body.servings,
-      optionalDescription: req.body.optionalDescription
+      optionalDescription: req.body.optionalDescription // the user can add more details about the recipe.
     }
-
 
     await user_utils.addNewRecipe(recipeDeatils);
     res.status(200).send("The Recipe Addedd Successfully");
-
 
     } catch(error){
     next(error);
   }
 })
 
+// ---------------------------------------------------------
+
+// -------------------- PRIVATE RECIPES --------------------
+
+
 /**
- * This path gets body with recipe details (create by the user).
+ * This path gets body with recipe details (create by the user, from type Private).
  */
 router.get('/myRecipes/:id', async (req,res,next) => {
   const recipeId = req.params.id;
   try{
     const author = await user_utils.whoWroteMe(recipeId)
 
+    // authenticate the author
     if (author == req.userid)
     {
       const preview = await user_utils.getRecipesPreviewDB(recipeId);
@@ -276,6 +296,9 @@ router.get('/myRecipes', async (req,res,next) => {
   }
 )
 
+// ---------------------------------------------------------
+
+// ------------------ FAVORITES RECIPES --------------------
 
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
@@ -304,6 +327,7 @@ router.get('/favorites', async (req,res,next) => {
     let result = []
     for (let i = 0; i < recipes_id_array.length; i++)
     {
+      // get recipe details
       let details = await recipe_utils.getRecipeDetails(recipes_id_array[i]);      
       result.push({
           recipeid: recipes_id_array[i],
@@ -316,6 +340,9 @@ router.get('/favorites', async (req,res,next) => {
   }
 });
 
+// ---------------------------------------------------------
+
+// ------------------ LAST WATCHED RECIPES -----------------
 
 /**
  * This path returns the last 3 watched recipes that watched by the logged-in user
@@ -323,12 +350,14 @@ router.get('/favorites', async (req,res,next) => {
 router.get('/lastViews', async (req,res,next) => {
   try{
     const user_id = req.session.userid;
+    // get list of recipes id
     const recipes_id = await user_utils.getLastWatchedRecipes(user_id);
     let resultPrev = []
     for (let i = 0; i < recipes_id.length; i++)
     {
+      // each recipe can ben from API or DB
       let recipeId = recipes_id[i].recipeid;
-      if (user_utils.containsOnlyNumbers(recipeId))
+      if (user_utils.containsOnlyNumbers(recipeId)) // if API
       {
         resultPrev.push(await recipe_utils.getRecipeDetails(recipeId))
       }
@@ -337,7 +366,7 @@ router.get('/lastViews', async (req,res,next) => {
         resultPrev.push(await user_utils.getRecipesPreviewDB(recipeId))
       }
     }
-
+    // reverse the result (from new to old)
     resultPrev = resultPrev.reverse();
     res.status(200).send(resultPrev);
   } catch(error){
@@ -345,5 +374,6 @@ router.get('/lastViews', async (req,res,next) => {
   }
 });
 
+// ---------------------------------------------------------
 
 module.exports = router;

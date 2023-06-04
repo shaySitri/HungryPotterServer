@@ -5,7 +5,7 @@ const DButils = require("../routes/utils/DButils");
 const bcrypt = require("bcrypt");
 
 
-
+// This path create new user.
 router.post("/register", async (req, res, next) => {
   try {
     let user_details = {
@@ -75,6 +75,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+// Thus path clear the current session.
 router.post("/logout", function (req, res) {
   req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
   res.send({ success: true, message: "logout succeeded" });

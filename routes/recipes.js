@@ -25,6 +25,7 @@ router.get("/:id", async (req, res, next) => {
       recipeDetails
     }
 
+    // if user is logged in, the recipe mark as watch.
     DButils.execQuery("SELECT userid FROM users").then((users) => {
       if (users.find((x) => x.userid === req.session.userid)) {
         user_utils.markAsWatched(req.session.userid, req.params.id)
@@ -38,7 +39,7 @@ router.get("/:id", async (req, res, next) => {
 });
 
 /**
- * This path returns a preview details of recikpes according to its id
+ * This path returns a preview details of recipes according to its id
  */
 router.get("/preview/:id", async (req, res, next) => {
   try {

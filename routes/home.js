@@ -36,6 +36,7 @@ router.get("/search", async (req, res, next) => {
     
     let recipes = []
 
+    // for each result, get its preview details.
     for (let i = 0; i < searchResult.length; i++) {
 
       let recipeDetaills = await recipes_utils.getRecipeDetails(searchResult[i].id);
@@ -59,7 +60,6 @@ router.get("/search", async (req, res, next) => {
 
     if (recipes.length == 0)
     {
-      
       res.status(204).send({ message: "No recipes to display", success: true });
     }
     else
@@ -70,7 +70,6 @@ router.get("/search", async (req, res, next) => {
     }
   } catch (error) {
     next(error); // 404
-    
   }
 });
 
