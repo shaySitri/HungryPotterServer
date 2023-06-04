@@ -305,6 +305,7 @@ router.get('/myRecipes', async (req,res,next) => {
  */
 router.post('/favorites', async (req,res,next) => {
   try{
+    
     const userid = req.userid;
     const recipeid = req.body.recipeid;
     await user_utils.markAsFavorite(userid,recipeid);
@@ -319,8 +320,8 @@ router.post('/favorites', async (req,res,next) => {
  */
 router.get('/favorites', async (req,res,next) => {
   try{
+
     const user_id = req.session.userid;
-    let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeid)); //extracting the recipe ids into array
