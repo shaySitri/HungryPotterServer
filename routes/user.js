@@ -377,6 +377,24 @@ router.get('/lastViews', async (req,res,next) => {
 
 // ---------------------------------------------------------
 
+// ---------------------------------------------------------
+
+/**
+ * This path returns user private name
+ */
+router.get('/privateName', async (req,res,next) => {
+  try{
+    const user_id = req.session.userid;
+      const privateName = await DButils.execQuery(`select firstname from users where userid='${user_id}';`);
+      res.status(200).send(privateName[0].firstname);
+    }
+    catch(error){
+      console.log(error) 
+
+      next(error);
+    }
+  });
+
 
 
 
