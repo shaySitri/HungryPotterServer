@@ -70,6 +70,8 @@ function getAllFilters()
 // This hnadle search option.
 async function getSearchResultApi(query) {
 
+    console.log(query)
+
     let paramsQ = new Object();
 
     // check that the query is not empty.
@@ -112,7 +114,7 @@ async function getSearchResultApi(query) {
     // if intolerance defined, it must includes in intolerance list.
     if (query.intolerance != "")
     {
-        if (intoleranceList.includes(query.diet))
+        if (intoleranceList.includes(query.intolerance))
         {
             paramsQ.intolerances = query.intolerance
         }
