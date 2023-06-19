@@ -4,6 +4,7 @@ const MySql = require("../routes/utils/MySql");
 const DButils = require("../routes/utils/DButils");
 const home_utils = require("./utils/home_utils");
 const recipes_utils = require("./utils/recipes_utils");
+const user_utils = require("./utils/user_utils");
 
 /**
  * This path generates 3 random recipes
@@ -12,6 +13,31 @@ router.get("/randomRecipes", async (req, res, next) => {
     try {
       const random = await home_utils.getRandomRecieps();
       res.send(random);
+    } catch (error) {
+      next(error); // 404
+    }
+  });
+  
+  /**
+ * This path send all possible filters for search
+ */
+router.get("/getFilters", async (req, res, next) => {
+  try {
+    const filters = await home_utils.getAllFilters();
+    res.send(filters);
+  } catch (error) {
+    next(error); // 404
+  }
+});
+
+  
+  /**
+ * This path send all possible unit for custome recipe.
+ */
+  router.get("/getUnits", async (req, res, next) => {
+    try {
+      const units = await user_utils.getUnits();
+      res.send(units);
     } catch (error) {
       next(error); // 404
     }
@@ -28,7 +54,7 @@ router.get("/search", async (req, res, next) => {
       query: req.query.query,
       cuisine: req.query.cuisine,
       diet: req.query.diet,
-      intolerance: req.query.intolerance,
+      intolerance: req.query.intolerances,
       number: req.query.number,
       sort: req.query.sort
     }

@@ -540,6 +540,8 @@ components:
       - vegan
       - vegetarian
       - glutenFree
+      - favorite
+      - watched
       type: object
       properties:
         id:
@@ -566,6 +568,12 @@ components:
           type: boolean
           example: true
         glutenFree:
+          type: boolean
+          example: true
+        favorite:
+          type: boolean
+          example: true
+        watched:
           type: boolean
           example: true
     Ingredient:

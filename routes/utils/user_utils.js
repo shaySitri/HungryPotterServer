@@ -19,18 +19,20 @@ function isPrivate(recipeid)
 }
 
 // This function get recipeid and check if the recipe exist (DB or API)
-async function recipeExist(recipeid)
+async function recipeExist(recipeid, userid)
 {
+
     if (isFamily(recipeid) || isPrivate(recipeid))
     {
         const re = await DButils.execQuery(`select recipeid from userrecipes where recipeId='${recipeid}'`);
+
         return re.length > 0;
     }
     else
     {
         try
         {
-            const re = await recipes_utils.getRecipeDetails(recipeid)
+            const re = await recipes_utils.getRecipeDetails(recipeid, userid)
             return re.id == recipeid    
         }
         catch(error)
@@ -38,6 +40,8 @@ async function recipeExist(recipeid)
             throw { status: 404, message: "Unvalid userid or recipeid." };
         }
     }
+
+    
 }
 
 
@@ -69,7 +73,7 @@ function containsOnlyLetters(str) {
 }
   // This check if string doesnt contain special charcters like: @#$^&,
 function normalString(str) {
-    const re = new RegExp(/[0-9a-zA-Z !.,:()%\s]+/);
+    const re = new RegExp(/[0-9a-zA-Z !.,:()% ]+/);
     let res = re.test(str)
     return res;
 }
@@ -104,15 +108,21 @@ async function getFavoriteRecipes(userid){
 // list of possible units of ingrediants.
 const unit = [ "cups", "tablespoons", "teaspoons", "grams", "ounces", "pounds", "pieces", "slices"]
 
+// This function retuen possible unit to use.
+function getUnits()
+{
+    return unit;
+}
+
 //  This function add new recipe to DB.
 async function addNewRecipe(recipeDeatils){
-
 
     // create recipe id:
 
     let reciepid = await DButils.execQuery(
         `SELECT COUNT('*') as count FROM userrecipes;`);
-
+    
+        console.log(recipeDeatils)
     reciepid = reciepid[0].count + 1;
     let recipenewid, optional;
     // Create recipe id according to its type.
@@ -175,17 +185,27 @@ async function addNewRecipe(recipeDeatils){
     // all ingrediants sperated by ,
     // example to ingrediants: sugar-5-cups,milk-2-spoons
 
-    let ingrediants = recipeDeatils.ingredients.split(',') 
-
+    let ingrediants = recipeDeatils.ingredients
     for (let i = 0; i < ingrediants.length; i++)
     {
-        let ing = ingrediants[i].split('-');
-        ing[1] = parseInt(ing[1], 10) 
-        // ing[0] - name of the ingrediant, ing[1] - amount of the ingrediant, ing[2] - unit
-        if (!containsOnlyLetters(ing[0]) || !containsOnlyNumbers(ing[1]) || !unit.includes(ing[2]) || !normalString(instructions) || !normalString(optional))
+        if (!containsOnlyLetters(ing.name) || !containsOnlyNumbers(ing.quantity) || !unit.includes(ing.unit))
         {
-            throw { status: 400, message: "Wrong format" };
+            console.log(!containsOnlyLetters(ing[0]))
+            console.log(!containsOnlyNumbers(ing[1]))
+            console.log(unit.includes(ing[2]))
+            console.log(unit)
+            console.log(ing[0], ing[1], ing[2])
+            throw { status: 400, message: "Wrong format (ingredients)" };
         }
+    }
+
+    if (!normalString(instructions))
+    {
+        throw { status: 400, message: "Wrong format (instructions)" };
+    }
+    if( !normalString(optional))
+    {
+        throw { status: 400, message: "Wrong format (descriptions)" };
     }
 
     const recipes_id = await DButils.execQuery(
@@ -325,7 +345,7 @@ async function getAllRecipesPreviewDB(userid, type){
 // This function update the last recipes user wtached (both DB and API)
 async function markAsWatched(userid, recipeid){
     // is recipe id is valid and not contain some malicious code.
-    const exist = await recipeExist(recipeid)
+    const exist = await recipeExist(recipeid, userid)
     if (exist) 
     {
         const specificRecipe = await DButils.execQuery(`select * from lastviews where userid='${userid}' and recipeid='${recipeid}';`);
@@ -334,7 +354,9 @@ async function markAsWatched(userid, recipeid){
             await deleteFromLastViews(userid, recipeid)
         }
 
-        await DButils.execQuery(`insert into lastviews values ('${userid}','${recipeid}')`);
+        await DButils.execQuery(`insert into lastviews values ('${userid}','${recipeid}');`);
+        const row = await DButils.execQuery(`select * from lastviews where userid='${userid}' and recipeid='${recipeid}';`);
+
     }
     else
     {
@@ -346,7 +368,7 @@ async function markAsWatched(userid, recipeid){
 
 // This function delete recipeid from watch-list of userid.
 async function deleteFromLastViews(userid, recipeid){
-    const exist = await recipeExist(reciepid)
+    const exist = await recipeExist(recipeid)
     if (exist) 
     {
         const res = await DButils.execQuery(`DELETE FROM lastviews WHERE userid='${userid}' AND recipeid='${recipeid}';`);
@@ -372,7 +394,7 @@ async function getLastWatchedRecipes(userid){
 // This function add recipes to user prepared meal.
 // Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
 async function wantToPrepare(userid, recipeid){
-    const exist = await recipeExist(reciepid)
+    const exist = await recipeExist(recipeid)
     if (exist) 
     {
         const doesRecipeExist = await DButils.execQuery(
@@ -431,3 +453,4 @@ exports.markAsWatched = markAsWatched;
 exports.getLastWatchedRecipes = getLastWatchedRecipes;
 exports.wantToPrepare = wantToPrepare;
 exports.dontWantToPrepare = dontWantToPrepare;
+exports.getUnits = getUnits;

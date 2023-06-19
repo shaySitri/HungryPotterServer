@@ -46,6 +46,7 @@ router.post("/register", async (req, res, next) => {
 });
 
 router.post("/login", async (req, res, next) => {
+
   try {
     // check that username exists
     const users = await DButils.execQuery("SELECT username FROM users");
@@ -64,12 +65,14 @@ router.post("/login", async (req, res, next) => {
     }
 
     // Set cookie
+    
     req.session.userid = user.userid;
     req.session.lastSearches = "xx";
 
-
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
+
+
   } catch (error) {
     next(error);
   }

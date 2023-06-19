@@ -55,7 +55,17 @@ const dietList = ["Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", 
 const intoleranceList = ["Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish",
 "Soy", "Sulfite", "Tree Nut", "Wheat"]
 const sortList = ["popularity", "time"]
-
+function getAllFilters()
+{
+    const filters = 
+    {
+        cuisine: cuisineList,
+        diet: dietList,
+        intolerance: intoleranceList,
+        sort: sortList
+    }
+    return filters;
+}
 
 // This hnadle search option.
 async function getSearchResultApi(query) {
@@ -73,7 +83,7 @@ async function getSearchResultApi(query) {
     }
 
     // if cuisine defined, it must includes in cuisine list.
-    if (query.cuisine != undefined)
+    if (query.cuisine != "")
     {
         query.cuisine = query.cuisine.toLowerCase();
         query.cuisine = query.cuisine.charAt(0).toUpperCase() + query.cuisine.slice(1);
@@ -87,7 +97,7 @@ async function getSearchResultApi(query) {
         }
     }
     // if diet defined, it must includes in diet list.
-    if (query.diet != undefined)
+    if (query.diet != "")
     {
         if (dietList.includes(query.diet))
         {
@@ -100,7 +110,7 @@ async function getSearchResultApi(query) {
     }
 
     // if intolerance defined, it must includes in intolerance list.
-    if (query.intolerance != undefined)
+    if (query.intolerance != "")
     {
         if (intoleranceList.includes(query.diet))
         {
@@ -113,7 +123,7 @@ async function getSearchResultApi(query) {
     }
     
     // if sort defined, it must includes in sort list.
-    if (query.sort != undefined)
+    if (query.sort != "")
     {
         if (sortList.includes(query.sort))
         {
@@ -134,9 +144,9 @@ async function getSearchResultApi(query) {
     }
     else
     {
-        if (query.number != undefined)
+        if (query.number != "")
         {
-            throw { status: 400, message: "Can display only 5\10\15 results.." };
+            throw { status: 400, message: "Can display only 5, 10 or 15 results.." };
         }
         else
         {
@@ -155,7 +165,8 @@ async function getSearchResultApi(query) {
             intolerances: paramsQ.intolerance,
             number: numResult,
             sort: paramsQ.sort,
-            apiKey: process.env.spooncular_apiKey
+            apiKey: process.env.spooncular_apiKey,
+            instructionsRequired: true
         }
     });
 }
@@ -172,3 +183,4 @@ async function getSearchResult(query) {
 
 exports.getRandomRecieps = getRandomRecieps;
 exports.getSearchResult = getSearchResult;
+exports.getAllFilters = getAllFilters;

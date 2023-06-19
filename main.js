@@ -13,16 +13,16 @@ app.use(express.json()); // parse application/json
 app.use(
   session({
     cookieName: "session", // the cookie key name
-    //secret: process.env.COOKIE_SECRET, // the encryption key
+    // secret: process.env.COOKIE_SECRET, // the encryption key
     secret: "template", // the encryption key
     duration: 24 * 60 * 60 * 1000, // expired after 20 sec
     activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration,
     cookie: {
       httpOnly: false,
     }
-    //the session will be extended by activeDuration milliseconds
+        //the session will be extended by activeDuration milliseconds
   })
-);
+  );
 app.use(express.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, "public"))); //To serve static files such as images, CSS files, and JavaScript files
 //local:
@@ -58,11 +58,11 @@ const home = require("./routes/home")
 
 //#region cookie middleware
 app.use(function (req, res, next) {
-  if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT user_id FROM users")
+  if (req.session && req.session.userid) {
+    DButils.execQuery("SELECT userid FROM users;")
       .then((users) => {
-        if (users.find((x) => x.user_id === req.session.user_id)) {
-          req.user_id = req.session.user_id;
+        if (users.find((x) => x.userid === req.session.userid)) {
+          req.userid = req.session.userid;
         }
         next();
       })

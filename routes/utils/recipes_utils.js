@@ -1,5 +1,7 @@
 const axios = require("axios");
 const DButils = require("./DButils");
+const user_utils = require("./user_utils");
+const { NText } = require("mssql");
 
 const api_domain = "https://api.spoonacular.com/recipes";
 
@@ -22,9 +24,25 @@ async function getRecipeInformation(recipe_id) {
 
 
 // This funcrion parse the information and return recipe preview.
-async function getRecipeDetails(recipe_id) {
+async function getRecipeDetails(recipe_id, user_id) {
+
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
+    let favorite = false;
+    let watched = false;
+    if (user_id != undefined){
+
+        await DButils.execQuery("SELECT userid FROM users").then((users) => {
+            usersid = users.map(user => user.userid); })
+            if (usersid.includes(user_id)) {
+                let allFavorites = await DButils.execQuery(`SELECT * FROM favoriterecipes where (userid='${user_id}' and recipeId='${recipe_id}');`);
+                favorite = allFavorites.length > 0
+                let allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeId='${recipe_id}');`);
+                watched = allWatched.length > 0
+            }
+  
+    }
+
 
     return {
         id: id,
@@ -35,6 +53,8 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
+        favorite: favorite,
+        watched: watched,
     }
 }
 
