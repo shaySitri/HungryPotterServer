@@ -385,7 +385,7 @@ async function getLastWatchedRecipes(userid){
 
     // we assume that user-id validate (send with the cookie)
     const allWatchedRecipes = await DButils.execQuery(`select recipeid from lastviews where userid='${userid}';`);
-    return allWatchedRecipes.slice(-3);
+    return allWatchedRecipes;
 }
 // -----------------------------------------------------------------
 // ------------------------------- BONUS ---------------------------

@@ -35,9 +35,9 @@ async function getRecipeDetails(recipe_id, user_id) {
         await DButils.execQuery("SELECT userid FROM users").then((users) => {
             usersid = users.map(user => user.userid); })
             if (usersid.includes(user_id)) {
-                let allFavorites = await DButils.execQuery(`SELECT * FROM favoriterecipes where (userid='${user_id}' and recipeId='${recipe_id}');`);
+                const allFavorites = await DButils.execQuery(`SELECT * FROM favoriterecipes where (userid='${user_id}' and recipeId='${recipe_id}');`);
                 favorite = allFavorites.length > 0
-                let allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeId='${recipe_id}');`);
+                const allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeId='${recipe_id}');`);
                 watched = allWatched.length > 0
             }
   

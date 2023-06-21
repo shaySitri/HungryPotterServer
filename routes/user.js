@@ -360,11 +360,11 @@ router.get('/lastViews', async (req,res,next) => {
       let recipeId = recipes_id[i].recipeid;
       if (user_utils.containsOnlyNumbers(recipeId)) // if API
       {
-        resultPrev.push(await recipe_utils.getRecipeDetails(recipeId))
+        resultPrev.push(await recipe_utils.getRecipeDetails(recipeId, user_id))
       }
       else
       {
-        resultPrev.push(await user_utils.getRecipesPreviewDB(recipeId))
+        resultPrev.push(await user_utils.getRecipesPreviewDB(recipeId, user_id))
       }
     }
     // reverse the result (from new to old)
