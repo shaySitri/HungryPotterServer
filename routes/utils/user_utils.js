@@ -84,6 +84,8 @@ function normalString(str) {
 // This function add API recipes to user favorite.
 // Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
 async function markAsFavorite(userid, recipeid){
+    console.log("GOT TO MARK FAV")
+
     const exist = await recipeExist(recipeid)
     if (exist)
     {

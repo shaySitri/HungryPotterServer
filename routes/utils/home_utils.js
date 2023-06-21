@@ -37,6 +37,8 @@ async function getRandomRecieps() {
                 vegan: recipes[i].vegan,
                 vegetarian: recipes[i].vegetarian,
                 glutenFree: recipes[i].glutenFree,
+                favorite: false,
+                watched: false,
             }
         )
       }
@@ -87,41 +89,45 @@ async function getSearchResultApi(query) {
     // if cuisine defined, it must includes in cuisine list.
     if (query.cuisine != "")
     {
-        query.cuisine = query.cuisine.toLowerCase();
-        query.cuisine = query.cuisine.charAt(0).toUpperCase() + query.cuisine.slice(1);
-        if (cuisineList.includes(query.cuisine))
+        allCuisines = query.cuisine.split(',')
+        for (let i = 0; i < allCuisines.length; i++)
         {
-            paramsQ.cuisine = query.cuisine;
+            console.log(allCuisines[i])
+
+            if (!cuisineList.includes(allCuisines[i].charAt(0).toUpperCase() + allCuisines[i].slice(1)))
+                {
+                    throw { status: 400, message: "Cuisine dont avilable." };
+                }
         }
-        else
-        {
-            throw { status: 400, message: "Cuisine dont avilable." };
-        }
+        paramsQ.cuisine = query.cuisine
     }
     // if diet defined, it must includes in diet list.
     if (query.diet != "")
     {
-        if (dietList.includes(query.diet))
+        
+        allDiets = query.diet.split(',')
+        for (let i = 0; i < allDiets.length; i++)
         {
-            paramsQ.diet = query.diet
+            if (!dietList.includes(allDiets[i].charAt(0).toUpperCase() + allDiets[i].slice(1)))
+                {
+                    throw { status: 400, message: "Diet dont avilable." };
+                }
         }
-        else
-        {
-            throw { status: 400, message: "Diet dont avilable." };
-        }
+        paramsQ.diet = query.diet
     }
 
     // if intolerance defined, it must includes in intolerance list.
     if (query.intolerance != "")
     {
-        if (intoleranceList.includes(query.intolerance))
+        allInto = query.intolerance.split(',')
+        for (let i = 0; i < allInto.length; i++)
         {
-            paramsQ.intolerances = query.intolerance
+            if (!dietList.includes(allInto[i].charAt(0).toUpperCase() + allInto[i].slice(1)))
+                {
+                    throw { status: 400, message: "Intoleranxe dont avilable." };
+                }
         }
-        else
-        {
-            throw { status: 400, message: "Intolerance dont avilable." };
-        }
+        paramsQ.intolerance = query.intolerance
     }
     
     // if sort defined, it must includes in sort list.

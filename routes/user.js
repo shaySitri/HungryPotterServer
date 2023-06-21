@@ -308,6 +308,7 @@ router.post('/favorites', async (req,res,next) => {
     
     const userid = req.userid;
     const recipeid = req.body.recipeid;
+    console.log("GOT TO POST FAV")
     await user_utils.markAsFavorite(userid,recipeid);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
