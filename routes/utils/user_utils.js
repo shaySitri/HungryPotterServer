@@ -353,6 +353,7 @@ async function markAsWatched(userid, recipeid){
     if (exist) 
     {
         const specificRecipe = await DButils.execQuery(`select * from lastviews where userid='${userid}' and recipeid='${recipeid}';`);
+        console.log(specificRecipe)
         if (specificRecipe.length != 0)
         {
             await deleteFromLastViews(userid, recipeid)

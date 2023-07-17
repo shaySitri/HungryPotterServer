@@ -75,7 +75,7 @@ router.get("/search", async (req, res, next) => {
                 title: searchResult[i].title,
                 readyInMinutes: recipeDetaills.readyInMinutes,
                 image: searchResult[i].image,
-                popularity: recipeDetaills.aggregateLikes,
+                popularity: recipeDetaills.popularity,
                 vegan: recipeDetaills.vegan,
                 vegetarian: recipeDetaills.vegetarian,
                 glutenFree: recipeDetaills.glutenFree,
