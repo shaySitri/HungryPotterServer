@@ -84,17 +84,19 @@ function normalString(str) {
 // This function add API recipes to user favorite.
 // Input check - user id is valid (contain only number) - we assume that the user exist (send by the session).
 async function markAsFavorite(userid, recipeid){
-    console.log("GOT TO MARK FAV")
-
     const exist = await recipeExist(recipeid)
+    await DButils.execQuery(`DELETE FROM favoriterecipes WHERE userid='${userid}' and recipeId='${recipeid}';`);
     if (exist)
-    {
-        await DButils.execQuery(`insert into favoriterecipes values ('${userid}','${recipeid}')`);
-    }
+        {
+            await DButils.execQuery(`insert into favoriterecipes values ('${userid}','${recipeid}')`);
+        }
     else
-    {
-        throw { status: 404, message: "Unvalid userid or recipeid." };
-    }
+        {
+            throw { status: 404, message: "Unvalid userid or recipeid." };
+        }   
+
+
+    
 }
 
 
