@@ -322,7 +322,7 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
 
-    const user_id = req.session.userid;
+    const user_id = req.userid;
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeid)); //extracting the recipe ids into array

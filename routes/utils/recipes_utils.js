@@ -25,22 +25,19 @@ async function getRecipeInformation(recipe_id) {
 
 // This funcrion parse the information and return recipe preview.
 async function getRecipeDetails(recipe_id, user_id) {
-
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
     let favorite = false;
     let watched = false;
     if (user_id != undefined){
-
         await DButils.execQuery("SELECT userid FROM users").then((users) => {
             usersid = users.map(user => user.userid); })
             if (usersid.includes(user_id)) {
                 const allFavorites = await DButils.execQuery(`SELECT * FROM favoriterecipes where (userid='${user_id}' and recipeId='${recipe_id}');`);
                 favorite = allFavorites.length > 0
-                const allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeId='${recipe_id}');`);
+                const allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeid='${recipe_id}');`);
                 watched = allWatched.length > 0
             }
-  
     }
 
 

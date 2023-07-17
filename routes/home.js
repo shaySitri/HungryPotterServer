@@ -49,6 +49,7 @@ router.get("/getFilters", async (req, res, next) => {
  */
 router.get("/search", async (req, res, next) => {
   try {
+    const user_id = req.userid;
     let query =
     {
       query: req.query.query,
@@ -65,10 +66,9 @@ router.get("/search", async (req, res, next) => {
     // for each result, get its preview details.
     for (let i = 0; i < searchResult.length; i++) {
 
-      let recipeDetaills = await recipes_utils.getRecipeDetails(searchResult[i].id);
+      let recipeDetaills = await recipes_utils.getRecipeDetails(searchResult[i].id, user_id) ;
       let recipeInst = await recipes_utils.getRecipeInstructions(searchResult[i].id);
-      
-      
+            
       recipes.push(
             {
                 id: searchResult[i].id,
@@ -79,7 +79,9 @@ router.get("/search", async (req, res, next) => {
                 vegan: recipeDetaills.vegan,
                 vegetarian: recipeDetaills.vegetarian,
                 glutenFree: recipeDetaills.glutenFree,
-                instructions: recipeInst.instructions
+                instructions: recipeInst.instructions,
+                favorite: recipeDetaills.favorite,
+                watched: recipeDetaills.watched,
             }
         )
       }
