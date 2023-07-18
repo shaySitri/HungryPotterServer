@@ -167,10 +167,12 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
         ingredients: inst.ingredients,
         instructions: inst.instructions,
         servings: inst.servings,
-        recipeDeatils: preview
+        recipeDetails: preview,
+        optional: inst.optional
 
       }
-      user_utils.markAsWatched(author, recipeId)
+      
+      user_utils.markAsWatched(author, recipeId);
       res.status(200).send(fullRecipe);
     }
     else if (user_utils.isPrivate(recipeId))
@@ -194,6 +196,7 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
  */
 router.get('/myRecipes/family', async (req,res,next) => {
   const author = req.userid;
+  console.log(author)
   try{
       const preview = await user_utils.getAllRecipesPreviewDB(author, "Family")
       res.status(200).send(preview);
@@ -263,7 +266,7 @@ router.get('/myRecipes/:id', async (req,res,next) => {
         ingredients: inst.ingredients,
         instructions: inst.instructions,
         servings: inst.servings,
-        recipeDeatils: preview
+        recipeDetails: preview
 
       }
       user_utils.markAsWatched(author, recipeId)
