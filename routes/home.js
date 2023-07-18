@@ -55,7 +55,7 @@ router.get("/search", async (req, res, next) => {
       query: req.query.query,
       cuisine: req.query.cuisine,
       diet: req.query.diet,
-      intolerance: req.query.intolerances,
+      intolerances: req.query.intolerances,
       number: req.query.number,
       sort: req.query.sort
     }
