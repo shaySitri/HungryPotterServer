@@ -92,7 +92,6 @@ async function getSearchResultApi(query) {
         allCuisines = query.cuisine.split(',')
         for (let i = 0; i < allCuisines.length; i++)
         {
-            console.log(allCuisines[i])
 
             if (!cuisineList.includes(allCuisines[i].charAt(0).toUpperCase() + allCuisines[i].slice(1)))
                 {
@@ -117,12 +116,12 @@ async function getSearchResultApi(query) {
     }
 
     // if intolerance defined, it must includes in intolerance list.
-    if (query.intolerance != "")
+    if (query.intolerances != "")
     {
-        allInto = query.intolerance.split(',')
+        allInto = query.intolerances.split(',')
         for (let i = 0; i < allInto.length; i++)
         {
-            if (!dietList.includes(allInto[i].charAt(0).toUpperCase() + allInto[i].slice(1)))
+            if (!intoleranceList.includes(allInto[i].charAt(0).toUpperCase() + allInto[i].slice(1)))
                 {
                     throw { status: 400, message: "Intoleranxe dont avilable." };
                 }
