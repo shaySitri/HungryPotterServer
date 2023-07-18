@@ -184,21 +184,16 @@ async function addNewRecipe(recipeDeatils){
     }
 
     // we save the instructions as long string in the SQL
-    let instructions = recipeDeatils.instructions.split('\n') // instructions - after evry instruction will be /n
+    let instructions = recipeDeatils.instructions.split('^') 
     
     // all ingrediants sperated by ,
     // example to ingrediants: sugar-5-cups,milk-2-spoons
-
-    let ingrediants = recipeDeatils.ingredients
+    let ingrediants = splitIngredients(recipeDeatils.ingredients)
     for (let i = 0; i < ingrediants.length; i++)
     {
-        if (!containsOnlyLetters(ing.name) || !containsOnlyNumbers(ing.quantity) || !unit.includes(ing.unit))
+        
+        if (!containsOnlyLetters(ingrediants[i].name) || !containsOnlyNumbers(ingrediants[i].quantity) || !unit.includes(ingrediants[i].unit))
         {
-            console.log(!containsOnlyLetters(ing[0]))
-            console.log(!containsOnlyNumbers(ing[1]))
-            console.log(unit.includes(ing[2]))
-            console.log(unit)
-            console.log(ing[0], ing[1], ing[2])
             throw { status: 400, message: "Wrong format (ingredients)" };
         }
     }
@@ -211,7 +206,7 @@ async function addNewRecipe(recipeDeatils){
     {
         throw { status: 400, message: "Wrong format (descriptions)" };
     }
-
+    console.log(recipeDeatils.instructions)
     const recipes_id = await DButils.execQuery(
         `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,vegan,vegetarian,glutenFree,ingredients,instructions,servings,optionalDescription) 
         VALUES ('${recipeDeatils.userid}', '${recipenewid}', '${recipeDeatils.title}', '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}','${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${recipeDeatils.servings}','${optional}');`
@@ -251,6 +246,27 @@ async function getRecipesPreviewDB(reciepid){
 }
 // -----------------------------------------------------------------
 
+
+function splitIngredients(ingredients){
+    // split ingridients:
+    const allIng = ingredients.split(',');
+    let allIngProperties = []
+    for (let i = 0; i < allIng.length; i++)
+    {
+        // asume data hs been valisated by the server
+        let ing = allIng[i].split('-');
+        allIngProperties.push(
+            {
+                name: ing[0],
+                quantity: ing[1],
+                unit: ing[2]
+            }
+        )
+    }
+    return allIngProperties;
+}
+
+
 // This function get recipeID and return its full instructions from DB.
 async function getRecipesInstructionsDB(reciepid){
 
@@ -263,31 +279,34 @@ async function getRecipesInstructionsDB(reciepid){
         {
             ingredients: recipesDetails[0].ingredients, // xx-xx-xx,yy-yy-yy
             servings: recipesDetails[0].servings,
-            instructions: recipesDetails[0].instructions    
+            instructions: recipesDetails[0].instructions ,
         }
+        
 
-        // split ingridients: 
-        const allIng = details.ingredients.split(',');
-        let allIngProperties = []
-        for (let i = 0; i < allIng.length; i++)
-        {
-            // asume data hs been valisated by the server
-            let ing = allIng[i].split('-');
-            allIngProperties.push(
-                {
-                    name: ing[0],
-                    quantity: ing[1],
-                    unit: ing[2]
-                }
-            )
-        }
+        // // split ingridients: 
+        // const allIng = details.ingredients.split(',');
+        // let allIngProperties = []
+        // for (let i = 0; i < allIng.length; i++)
+        // {
+        //     // asume data hs been valisated by the server
+        //     let ing = allIng[i].split('-');
+        //     allIngProperties.push(
+        //         {
+        //             name: ing[0],
+        //             quantity: ing[1],
+        //             unit: ing[2]
+        //         }
+        //     )
+        // }
 
-        let recipeInst = details.instructions.split('\n');
+        let allIngProperties = splitIngredients(details.ingredients);
+        let recipeInst = details.instructions.split('^');
 
         return {
             ingredients: allIngProperties,
             servings: details.servings,
-            instructions: recipeInst
+            instructions: recipeInst,
+            optional: recipesDetails[0].optionalDescription
         }
     }
     else
@@ -328,16 +347,16 @@ async function getAllRecipesPreviewDB(userid, type){
         if (type == "Private" && isPrivate(recipes[i].recipeId))
         {
             allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
-
         }
         else if (type == "Family" && isFamily(recipes[i].recipeId))
         {
             allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
         }
-        else
-        {
-            throw { status: 404, message: "Unvalid userid or recipeid." };
-        }
+        // else
+        // {
+        //     console.log(recipes[i].recipeId, "else")
+        //     throw { status: 404, message: "Unvalid userid or recipeid." };
+        // }
     }
     return allPrev
 }
