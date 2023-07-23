@@ -4,7 +4,6 @@ const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
 
-
 /**
  * Authenticate all incoming requests by middleware
  */
@@ -67,7 +66,6 @@ router.get('/recipes/:id', async (req,res,next) => {
   }
 )
 
-
 /**
  * This path dispaly all the recipes that the user want to prpeare. (BONUS)
  */
@@ -105,7 +103,6 @@ router.get('/recipes', async (req,res,next) => {
         res.status(401).send(recipesPrev);
       }
     }
-    console.log(recipesPrev)
     res.status(200).send(recipesPrev);
 
   }
@@ -114,7 +111,6 @@ router.get('/recipes', async (req,res,next) => {
     }
   }
 )
-
 
 /**
  * This path gets body with recipeId and save this recipe in the prepare meal DB.
@@ -196,7 +192,6 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
  */
 router.get('/myRecipes/family', async (req,res,next) => {
   const author = req.userid;
-  console.log(author)
   try{
       const preview = await user_utils.getAllRecipesPreviewDB(author, "Family")
       res.status(200).send(preview);
@@ -206,7 +201,6 @@ router.get('/myRecipes/family', async (req,res,next) => {
     }
   }
 )
-
 
 // ---------------------------------------------------------
 
@@ -311,7 +305,6 @@ router.post('/favorites', async (req,res,next) => {
     
     const userid = req.userid;
     const recipeid = req.body.recipeid;
-    console.log("GOT TO POST FAV")
     await user_utils.markAsFavorite(userid,recipeid);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
@@ -355,7 +348,6 @@ router.get('/favorites', async (req,res,next) => {
 router.get('/lastViews', async (req,res,next) => {
   try{
     const user_id = req.session.userid;
-    console.log(user_id)
     // get list of recipes id
     const recipes_id = await user_utils.getLastWatchedRecipes(user_id);
     let resultPrev = []
@@ -394,14 +386,9 @@ router.get('/privateName', async (req,res,next) => {
       res.status(200).send(privateName[0].firstname);
     }
     catch(error){
-      console.log(error) 
-
       next(error);
     }
   });
-
-
-
-
+  
 
 module.exports = router;

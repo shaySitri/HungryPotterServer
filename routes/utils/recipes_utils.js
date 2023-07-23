@@ -39,8 +39,6 @@ async function getRecipeDetails(recipe_id, user_id) {
                 watched = allWatched.length > 0
             }
     }
-
-
     return {
         id: id,
         title: title,

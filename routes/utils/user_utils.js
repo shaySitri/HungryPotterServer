@@ -55,7 +55,7 @@ function isValidUrl(string) {
     }
   }
 
-  // This check if url is from tyoe image.
+// This check if url is from tyoe image.
 function isImage(url) {
     return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
   }
@@ -122,12 +122,9 @@ function getUnits()
 async function addNewRecipe(recipeDeatils){
 
     // create recipe id:
-
     let reciepid = await DButils.execQuery(
         `SELECT COUNT('*') as count FROM userrecipes;`);
-    
-        console.log(recipeDeatils)
-    reciepid = reciepid[0].count + 1;
+        reciepid = reciepid[0].count + 1;
     let recipenewid, optional;
     // Create recipe id according to its type.
     if (recipeDeatils.type == "Family")
@@ -147,7 +144,6 @@ async function addNewRecipe(recipeDeatils){
 
 
     // Check validty:
-
     // Rady in minutes
     if (containsOnlyNumbers(recipeDeatils.readyInMinutes, 10) == true)
     {
@@ -184,6 +180,7 @@ async function addNewRecipe(recipeDeatils){
     }
 
     // we save the instructions as long string in the SQL
+    // example to instructions: step1^step2^step3
     let instructions = recipeDeatils.instructions.split('^') 
     
     // all ingrediants sperated by ,
@@ -206,7 +203,6 @@ async function addNewRecipe(recipeDeatils){
     {
         throw { status: 400, message: "Wrong format (descriptions)" };
     }
-    console.log(recipeDeatils.instructions)
     const recipes_id = await DButils.execQuery(
         `INSERT INTO userRecipes (userid,recipeId,title,readyInMinutes,image,vegan,vegetarian,glutenFree,ingredients,instructions,servings,optionalDescription) 
         VALUES ('${recipeDeatils.userid}', '${recipenewid}', '${recipeDeatils.title}', '${readyInMinutes}', '${recipeDeatils.image}', '${recipeDeatils.vegan}', '${recipeDeatils.vegetarian}', '${recipeDeatils.glutenFree}','${recipeDeatils.ingredients}','${recipeDeatils.instructions}','${recipeDeatils.servings}','${optional}');`
@@ -270,7 +266,7 @@ function splitIngredients(ingredients){
 // This function get recipeID and return its full instructions from DB.
 async function getRecipesInstructionsDB(reciepid){
 
-    // validity check 
+    // validity check.
     const exist = await recipeExist(reciepid)
     if (exist)
     {    
@@ -282,23 +278,7 @@ async function getRecipesInstructionsDB(reciepid){
             instructions: recipesDetails[0].instructions ,
         }
         
-
-        // // split ingridients: 
-        // const allIng = details.ingredients.split(',');
-        // let allIngProperties = []
-        // for (let i = 0; i < allIng.length; i++)
-        // {
-        //     // asume data hs been valisated by the server
-        //     let ing = allIng[i].split('-');
-        //     allIngProperties.push(
-        //         {
-        //             name: ing[0],
-        //             quantity: ing[1],
-        //             unit: ing[2]
-        //         }
-        //     )
-        // }
-
+        // spliting the ingredients and instructions according to the stracture we desiced.
         let allIngProperties = splitIngredients(details.ingredients);
         let recipeInst = details.instructions.split('^');
 
@@ -315,7 +295,6 @@ async function getRecipesInstructionsDB(reciepid){
     }
 }
 // -----------------------------------------------------------------
-
 // This function check that the requester of the recipe is the one who wrote this.
 async function whoWroteMe(recipeid){
     // validity check 
@@ -335,7 +314,6 @@ async function whoWroteMe(recipeid){
     }
 }
 // -----------------------------------------------------------------
-
 // This function get user ID and type (family\private), and display to the user all of its recipe from this type.
 async function getAllRecipesPreviewDB(userid, type){
 
@@ -352,11 +330,6 @@ async function getAllRecipesPreviewDB(userid, type){
         {
             allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
         }
-        // else
-        // {
-        //     console.log(recipes[i].recipeId, "else")
-        //     throw { status: 404, message: "Unvalid userid or recipeid." };
-        // }
     }
     return allPrev
 }
