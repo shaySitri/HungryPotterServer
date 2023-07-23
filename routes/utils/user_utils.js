@@ -103,7 +103,6 @@ async function markAsFavorite(userid, recipeid){
 // Retrive all the favorite recipes of user.
 async function getFavoriteRecipes(userid){
     const recipesid = await DButils.execQuery(`select recipeid from favoriterecipes where userid='${userid}'`);
-    console.log(recipesid);
     return recipesid;
 }
 
