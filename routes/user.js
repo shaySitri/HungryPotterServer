@@ -112,34 +112,6 @@ router.get('/recipes', async (req,res,next) => {
   }
 )
 
-/**
- * This path gets body with recipeId and save this recipe in the prepare meal DB.
- */
-router.post('/recipes', async (req,res,next) => {
-  try{
-    const userid = req.userid;
-    const recipeid = req.body.recipeid;
-    await user_utils.wantToPrepare(userid,recipeid);
-    res.status(200).send("The Recipe successfully saved as 'want to prepare'");
-    } catch(error){
-    next(error);
-  }
-})
-
-
-/**
- * This path gets body with recipeId and delte from perpare meal table.
- */
-router.delete('/recipes', async (req,res,next) => {
-  try{
-    const userid = req.userid;
-    const recipeid = req.body.recipeid;
-    await user_utils.dontWantToPrepare(userid,recipeid);
-    res.status(200).send("The Recipe successfully deleted from 'want to prepare'");
-    } catch(error){
-    next(error);
-  }
-})
 
 // ---------------------------------------------------------
 

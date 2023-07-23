@@ -1,10 +1,26 @@
-  <header>
-    <h1>Web Development Environments</h1>
-  </header>
 
-<body>
-<p>Itai Carmel 208909416<br>Shay Sitri 209405042</p>
+# Hungry Potter - Server Side
 
-<a href="https://web-development-environments-2023.github.io/assignment2-208909416_209405042/](https://web-development-environments-2023.github.io/assignment3_2-209405042_208909416/">Go to our backend part.</a>.
 
- </body>
+## Authors
+
+- [@it4i](https://www.github.com/it4i) Itai Carmel - 208909416
+- [@shaySitri](https://www.github.com/shaySitri) Shay Sitri - 209405042
+
+## Tools
+This project contain server side of recipes web.
+Devolped with:
+- NodeJS
+- expressJS
+- Database: MySQL
+- Swagger API
+- Postman
+
+
+
+## Utils
+
+- home
+- recipes
+- user 
+- auth

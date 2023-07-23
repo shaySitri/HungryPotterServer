@@ -45,7 +45,7 @@ paths:
   /users/addRecipe/:
     post:
       tags:
-      - user
+      - users
       summary: add new recipe
       description: Adds new recipe to the system
       operationId: addRecipe
@@ -63,7 +63,7 @@ paths:
   /users/myRecipes/{id}:
     get:
       tags:
-      - user
+      - users
       summary: get recipe created by the user
       description: get full recipe created by the user
       operationId: myRecipes
@@ -88,7 +88,7 @@ paths:
   /users/myRecipes/:
     get:
       tags:
-      - user
+      - users
       summary: get all recipes previews created by the user
       description: get previews of recipe created by the user
       operationId: myRecipesPreviews
@@ -108,7 +108,7 @@ paths:
   /users/myRecipes/family/{id}:
     get:
       tags:
-      - user
+      - users
       summary: get recipe created by the user (recipes from type family)
       description: get full recipe created by the user (recipes from type family)
       operationId: myFamilyRecipes
@@ -133,7 +133,7 @@ paths:
   /users/myRecipes/family:
     get:
       tags:
-      - user
+      - users
       summary: get all recipes previews created by the user (recipes from type family)
       description: get previews of recipe created by the user (recipes from type family)
       operationId: myFamilyRecipesPreviews
@@ -231,7 +231,7 @@ paths:
   /users/lastViews:
     get:
       tags:
-      - user
+      - users
       summary: get last 3 recipes watched by the user - (db lastviews).
       description: display preview of last 3 watched recipes.
       operationId: lastViewsUpdate
@@ -246,6 +246,56 @@ paths:
                 items:
                 - $ref: '#/components/schemas/RecipeDetails'
                 - $ref: '#/components/schemas/MyRecipeDetails'
+        "404":
+          description: Server error.
+  /users/privateName:
+    get:
+      tags:
+      - users
+      summary: get private name of user
+      description: get private name of user.
+      responses:
+        "200":
+          description: Private name retrived successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: user's private name
+        "404":
+          description: Server error.
+  /getFilters:
+    get:
+      tags:
+      - home
+      summary: get all possible filters for search.
+      description: get all possible filters for search.
+      operationId: getAllFilters
+      responses:
+        "200":
+          description: Filters to search retrived successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: object contain all possible filters for search- cusine, intolerances, diet...
+        "404":
+          description: Server error.
+  /getUnits:
+    get:
+      tags:
+      - home
+      summary: get all all possible unit for custome recipe.
+      description: get all unit for custome recipe
+      operationId: getUnits
+      responses:
+        "200":
+          description: Filters to search retrived successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: object contain all possible filters for search- cusine, intolerances, diet...
         "404":
           description: Server error.
 
