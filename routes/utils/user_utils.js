@@ -103,6 +103,7 @@ async function markAsFavorite(userid, recipeid){
 // Retrive all the favorite recipes of user.
 async function getFavoriteRecipes(userid){
     const recipesid = await DButils.execQuery(`select recipeid from favoriterecipes where userid='${userid}'`);
+    console.log(recipesid);
     return recipesid;
 }
 
@@ -216,8 +217,16 @@ async function addNewRecipe(recipeDeatils){
 // ------------------------ DISPLAY RECIPES ------------------------
 
 // This function get recipeID and return its preview from DB.
-async function getRecipesPreviewDB(reciepid){
-
+async function getRecipesPreviewDB(reciepid,user_id){
+    let watched = false;
+    if (user_id != undefined){
+        await DButils.execQuery("SELECT userid FROM users").then((users) => {
+            usersid = users.map(user => user.userid); })
+            if (usersid.includes(user_id)) {
+                const allWatched = await DButils.execQuery(`SELECT * FROM lastviews where (userid='${user_id}' and recipeid='${reciepid}');`);
+                watched = allWatched.length > 0
+            }
+    }
     // validity check 
     const exist = await recipeExist(reciepid)
     if (exist)
@@ -232,6 +241,7 @@ async function getRecipesPreviewDB(reciepid){
             vegan: recipesDetails[0].vegan,
             vegetarian: recipesDetails[0].vegetarian,
             glutenFree: recipesDetails[0].glutenFree,
+            watched:watched,
         }
         return preview
     }
@@ -324,11 +334,11 @@ async function getAllRecipesPreviewDB(userid, type){
         // validity check 
         if (type == "Private" && isPrivate(recipes[i].recipeId))
         {
-            allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
+            allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId,userid))
         }
         else if (type == "Family" && isFamily(recipes[i].recipeId))
         {
-            allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId))
+            allPrev.push(await getRecipesPreviewDB(recipes[i].recipeId,userid))
         }
     }
     return allPrev

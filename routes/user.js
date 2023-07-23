@@ -84,7 +84,7 @@ router.get('/recipes', async (req,res,next) => {
         if (author == req.userid) 
         {
           // get recipe preview
-            const inst = await user_utils.getRecipesPreviewDB(recipeId);
+            const inst = await user_utils.getRecipesPreviewDB(recipeId,req.session.userid);
             recipesPrev.push(inst)
         }
         else
@@ -155,7 +155,7 @@ router.get('/myRecipes/family/:id', async (req,res,next) => {
     // author authentication
     if (author == req.userid && user_utils.isFamily(recipeId))
     {
-      const preview = await user_utils.getRecipesPreviewDB(recipeId);
+      const preview = await user_utils.getRecipesPreviewDB(recipeId,req.session.userid);
       const inst = await user_utils.getRecipesInstructionsDB(recipeId);
 
       let fullRecipe =
@@ -252,7 +252,7 @@ router.get('/myRecipes/:id', async (req,res,next) => {
     // authenticate the author
     if (author == req.userid)
     {
-      const preview = await user_utils.getRecipesPreviewDB(recipeId);
+      const preview = await user_utils.getRecipesPreviewDB(recipeId,req.session.userid);
       const inst = await user_utils.getRecipesInstructionsDB(recipeId);
 
       let fullRecipe =
@@ -317,16 +317,17 @@ router.post('/favorites', async (req,res,next) => {
  */
 router.get('/favorites', async (req,res,next) => {
   try{
-
+    console.log("!!!!!!");
     const user_id = req.session.userid;
     const recipes_id = await user_utils.getFavoriteRecipes(user_id);
+    console.log(recipes_id);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipeid)); //extracting the recipe ids into array
     let result = []
     for (let i = 0; i < recipes_id_array.length; i++)
     {
       // get recipe details
-      let details = await recipe_utils.getRecipeDetails(recipes_id_array[i]);      
+      let details = await recipe_utils.getRecipeDetails(recipes_id_array[i],user_id);      
       result.push({
           recipeid: recipes_id_array[i],
           preview: details
