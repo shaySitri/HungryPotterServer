@@ -71,9 +71,6 @@ function getAllFilters()
 
 // This hnadle search option.
 async function getSearchResultApi(query) {
-
-    console.log(query)
-
     let paramsQ = new Object();
 
     // check that the query is not empty.

@@ -6,7 +6,6 @@ const DButils = require("./utils/DButils");
 
 router.get("/", (req, res) => res.send("im here"));
 
-
 /**
  * This path returns a full details of a recipe by its id
  */
@@ -48,9 +47,5 @@ router.get("/preview/:id", async (req, res, next) => {
     next(error); // 404
   }
 });
-
-
-
-
 
 module.exports = router;

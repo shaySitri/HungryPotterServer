@@ -18,7 +18,7 @@ router.get("/randomRecipes", async (req, res, next) => {
     }
   });
   
-  /**
+/**
  * This path send all possible filters for search
  */
 router.get("/getFilters", async (req, res, next) => {
@@ -32,7 +32,7 @@ router.get("/getFilters", async (req, res, next) => {
 
   
   /**
- * This path send all possible unit for custome recipe.
+ * This path send all possible units for custome recipe.
  */
   router.get("/getUnits", async (req, res, next) => {
     try {
